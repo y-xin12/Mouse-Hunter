@@ -161,9 +161,10 @@ func _on_press(world_point: Vector2) -> void:
 	press_position = world_point
 	press_time = Time.get_ticks_msec() / 1000.0
 	moved_far = false
-	# Picking a placed piece up un-places it while it is being dragged.
+	# A placed piece stays placed while it is pressed; it is un-placed only
+	# when the press turns into a real drag (see _on_drag) so a quick tap
+	# can rotate the piece in place instead of sending it back to the tray.
 	var local_point := (world_point - piece.global_position) / piece.scale
-	piece.placed = false
 	piece.z_index = Z_DRAGGING
 	piece.scale = Vector2(board_scale, board_scale)
 	# Keep the point under the cursor anchored after the scale change.
@@ -175,8 +176,10 @@ func _on_press(world_point: Vector2) -> void:
 func _on_drag(world_point: Vector2) -> void:
 	if dragging == null:
 		return
-	if world_point.distance_to(press_position) > TAP_MAX_MOVE:
+	if world_point.distance_to(press_position) > TAP_MAX_MOVE and not moved_far:
 		moved_far = true
+		# The press became a real drag: lift the piece off the board now.
+		dragging.placed = false
 	dragging.global_position = world_point - grab_offset
 	_update_preview()
 
@@ -192,6 +195,11 @@ func _on_release(world_point: Vector2) -> void:
 		_rotate_piece(piece)
 		if not piece.placed:
 			_apply_tray_slot(piece)
+		else:
+			# A tapped placed piece stays on the board: restore its resting
+			# z-order and re-snap it to its cell.
+			piece.z_index = Z_PLACED
+			piece.global_position = board.cell_to_world(piece.board_position)
 	else:
 		_try_place(piece)
 	board.clear_preview()
@@ -231,6 +239,8 @@ func _try_place(piece: PuzzlePiece) -> void:
 		piece.scale = Vector2(board_scale, board_scale)
 		piece.global_position = board.cell_to_world(cell)
 	else:
+		# The drop was illegal: the piece returns to the tray un-placed.
+		piece.placed = false
 		_apply_tray_slot(piece)
 
 

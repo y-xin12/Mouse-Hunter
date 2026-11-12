@@ -76,6 +76,19 @@ func _run_tests() -> void:
 			"tap rotates tray piece")
 	_check(not hook.placed, "tap-rotated piece parked in tray")
 
+	# --- Tap-rotate a placed piece keeps it on the board -----------------
+	# `piece` (square) is still placed at (0, 0) from the drag test above;
+	# a 2x2 square keeps its footprint when rotated, so the in-place
+	# rotation is legal and must not send the piece back to the tray.
+	var square_orientation := piece.orientation
+	_tap(piece)
+	_check(piece.placed and piece.board_position == Vector2i(0, 0),
+			"tap keeps placed piece on the board")
+	_check(piece.orientation == posmod(square_orientation + 1, 4),
+			"tap rotates placed piece in place")
+	_check(piece.global_position == gm.board.cell_to_world(Vector2i(0, 0)),
+			"tapped placed piece stays snapped to its cell")
+
 	# --- Illegal rotation of a placed piece is blocked ------------------
 	gm._reset_level()
 	var corner: PuzzlePiece = _find_piece("corner")
@@ -88,6 +101,13 @@ func _run_tests() -> void:
 	gm._refresh_all_pieces()
 	gm._rotate_piece(corner)
 	_check(corner.orientation == 0, "placed piece rotation blocked when illegal")
+	# Same scenario through the tap input path: the piece must stay placed
+	# on the board instead of returning to the tray.
+	_tap(corner)
+	_check(corner.placed and corner.board_position == Vector2i(0, 0),
+			"tap keeps blocked piece placed on the board")
+	_check(corner.orientation == 0,
+			"tap does not rotate placed piece when illegal")
 
 
 	# --- Win flow replaying the solver-verified solution ----------------

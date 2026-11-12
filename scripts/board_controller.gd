@@ -70,6 +70,8 @@ func set_preview(cells: Array[Vector2i], openings: Array[Vector2i], legal: bool)
 
 func clear_preview() -> void:
 	preview_cells = []
+	preview_openings = []
+	queue_redraw()
 
 
 func _draw() -> void:
@@ -129,6 +131,3 @@ func _draw_mouse(center: Vector2) -> void:
 	draw_circle(center + Vector2(-r * 0.34, -r * 0.1), r * 0.12, EYE)
 	draw_circle(center + Vector2(r * 0.34, -r * 0.1), r * 0.12, EYE)
 	draw_circle(center + Vector2(0, r * 0.3), r * 0.16, NOSE)
-
-	preview_openings = []
-	queue_redraw()
