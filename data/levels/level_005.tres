@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LevelDefinition" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/level_definition.gd" id="1_lvl"]
+[ext_resource type="Resource" path="res://data/pieces/piece_square.tres" id="2_square"]
+[ext_resource type="Resource" path="res://data/pieces/piece_plank.tres" id="3_plank"]
+[ext_resource type="Resource" path="res://data/pieces/piece_corner.tres" id="4_corner"]
+[ext_resource type="Resource" path="res://data/pieces/piece_step.tres" id="5_step"]
+[ext_resource type="Resource" path="res://data/pieces/piece_hook.tres" id="6_hook"]
+[ext_resource type="Resource" path="res://data/pieces/piece_skew.tres" id="7_skew"]
+
+[resource]
+script = ExtResource("1_lvl")
+id = "attic_005"
+room = "attic"
+board_size = Vector2i(4, 6)
+mice = Array[Vector2i]([Vector2i(0, 4), Vector2i(1, 0), Vector2i(1, 2), Vector2i(2, 0), Vector2i(2, 4), Vector2i(3, 3)])
+pieces = [ExtResource("2_square"), ExtResource("3_plank"), ExtResource("4_corner"), ExtResource("5_step"), ExtResource("6_hook"), ExtResource("7_skew")]

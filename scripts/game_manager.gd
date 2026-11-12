@@ -286,4 +286,3 @@ func _next_level() -> void:
 	if next >= LevelLoader.level_count():
 		next = 0
 	_load_level(next)
-

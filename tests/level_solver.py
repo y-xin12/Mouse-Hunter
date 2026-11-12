@@ -6,8 +6,10 @@ Mirrors the board-space rotation/placement math used by placement_validator.gd:
 - normalization translates the rotated cells so the minimum corner is (0, 0)
 
 Enumerates every full tiling of the board with the six pieces, then designs
-three levels whose mice are subsets of a chosen tiling's opening cells and
-reports how many solutions satisfy each level (solvability check).
+five levels whose mice are subsets of a chosen tiling's opening cells and
+reports how many solutions satisfy each level (solvability check). Levels 4-5
+are designed so every satisfying tiling needs at least one piece rotated --
+they cannot be won without using the rotation mechanic.
 
 Run:  python3 tests/level_solver.py
 Writes: tests/solutions.json (used by tests/smoke_test.gd)
@@ -138,6 +140,75 @@ def _best_mice_subset(tilings, k):
     return best_mice, best_tiling, best_n
 
 
+def _rotations_for_tiling(t):
+    """Orientation index (0-3) each piece needs in a tiling, found by
+    matching BOTH the placed cells and the opening cell (normalized)
+    against rotated variants. Cells alone are ambiguous for pieces whose
+    silhouette is 180-degree symmetric (plank, step, skew) -- their
+    opening moves between the two orientations."""
+    rotations = {}
+    for pid, (cells, wopen) in t["placements"].items():
+        minx = min(c[0] for c in cells)
+        miny = min(c[1] for c in cells)
+        norm_cells = tuple(sorted((c[0] - minx, c[1] - miny) for c in cells))
+        norm_open = (wopen[0] - minx, wopen[1] - miny)
+        for r in range(4):
+            rc, ro = rotated_variant(PIECES[pid], r)
+            if tuple(sorted(rc)) == norm_cells and ro == norm_open:
+                rotations[pid] = r
+                break
+    return rotations
+
+
+def _tiling_rot_count(t):
+    """How many pieces in this tiling sit in a non-default orientation."""
+    return sum(1 for r in _rotations_for_tiling(t).values() if r != 0)
+
+
+def _min_rotations_required(tilings, mice):
+    """Fewest pieces a player must rotate across all satisfying tilings.
+    0 means the level can be won without ever rotating a piece."""
+    mice = set(mice)
+    return min(_tiling_rot_count(t) for t in tilings
+               if mice.issubset(t["openings"]))
+
+
+def _best_rotation_required_subset(tilings, k):
+    """Pick the k-mice subset where EVERY satisfying tiling needs rotation
+    (min_rot >= 1), preferring the most solutions so the level stays fair."""
+    from itertools import combinations
+    best = None
+    for t in tilings:
+        for mice in combinations(sorted(t["openings"]), k):
+            sats = [u for u in tilings if set(mice).issubset(u["openings"])]
+            if not sats:
+                continue
+            if min(_tiling_rot_count(u) for u in sats) < 1:
+                continue  # can be won without rotating
+            n = len(sats)
+            if best is None or n > best[2] or (n == best[2]
+                    and list(mice) < best[0]):
+                best = (list(mice), t, n)
+    return best
+
+
+def _unique_rotation_required_tiling(tilings, used_mice_sets):
+    """A tiling whose full opening set (6 mice) has a unique solution that
+    requires rotation, differing the most from already-used mice sets."""
+    best = None
+    for t in tilings:
+        if _tiling_rot_count(t) < 1:
+            continue
+        ops = frozenset(t["openings"])
+        if ops in used_mice_sets:
+            continue
+        distance = min(len(ops - used) for used in used_mice_sets)
+        if best is None or distance > best[1]:
+            best = (t, distance)
+    return best[0] if best else None
+
+
+
 
 
 def main():
@@ -155,7 +226,9 @@ def main():
     out = {"board_size": [BOARD_W, BOARD_H], "levels": []}
     # Difficulty ramp via solution count:
     #   level 1: 3 mice (many solutions) -> level 2: 5 mice (few)
-    #   -> level 3: 6 mice (unique solution).
+    #   -> level 3: 6 mice (unique solution, already requires rotation).
+    # Levels 4-5 are rotation levels: NO winning tiling exists with every
+    # piece in its default orientation, so the player must rotate to win.
     l1_mice, l1_tiling, l1_n = _best_mice_subset(tilings, 3)
     l2_mice, l2_tiling, l2_n = _best_mice_subset(tilings, 5)
     # Level 3 uses all 6 opening cells; pick a tiling whose mice positions
@@ -164,6 +237,15 @@ def main():
     l3_tiling = min(tilings, key=lambda t: len(t["openings"] & l2_cells))
     l3_mice = sorted(l3_tiling["openings"])
     l3_n = count_solutions_for_mice(tilings, l3_mice)
+    # Level 4: 4-mice subset where every solution needs rotation, keeping
+    # the solution count as high as possible so it stays fair.
+    l4_mice, l4_tiling, l4_n = _best_rotation_required_subset(tilings, 4)
+    # Level 5: all 6 openings of a rotation-requiring tiling (unique
+    # solution), as visually distinct as possible from earlier levels.
+    used = [set(l1_mice), set(l2_mice), set(l3_mice), set(l4_mice)]
+    l5_tiling = _unique_rotation_required_tiling(tilings, used)
+    l5_mice = sorted(l5_tiling["openings"])
+    l5_n = count_solutions_for_mice(tilings, l5_mice)
     level_specs = [
         {"id": "kitchen_001", "room": "kitchen",
          "mice": l1_mice, "tiling": l1_tiling, "n": l1_n},
@@ -171,32 +253,30 @@ def main():
          "mice": l2_mice, "tiling": l2_tiling, "n": l2_n},
         {"id": "bedroom_003", "room": "bedroom",
          "mice": l3_mice, "tiling": l3_tiling, "n": l3_n},
+        {"id": "bathroom_004", "room": "bathroom",
+         "mice": l4_mice, "tiling": l4_tiling, "n": l4_n},
+        {"id": "attic_005", "room": "attic",
+         "mice": l5_mice, "tiling": l5_tiling, "n": l5_n},
     ]
     ok = True
     for spec in level_specs:
         t = spec["tiling"]
         mice = list(spec["mice"])
         n = spec["n"]
+        min_rot = _min_rotations_required(tilings, mice) if n > 0 else -1
         print(f"\nLevel {spec['id']} ({spec['room']}): mice={mice} "
-              f"-> {n} satisfying solutions")
+              f"-> {n} satisfying solutions, "
+              f"minimum rotations required: {max(min_rot, 0)}")
         if n == 0:
             print("  ERROR: level is not solvable!")
             ok = False
-        rotations = {}
-        for pid, (cells, wopen) in t["placements"].items():
-            minx = min(c[0] for c in cells)
-            miny = min(c[1] for c in cells)
-            norm = tuple(sorted((c[0] - minx, c[1] - miny) for c in cells))
-            for r in range(4):
-                rc, _ = rotated_variant(PIECES[pid], r)
-                if tuple(sorted(rc)) == norm:
-                    rotations[pid] = r
-                    break
+        rotations = _rotations_for_tiling(t)
         out["levels"].append({
             "id": spec["id"], "room": spec["room"], "mice": mice,
             "placements": {pid: [list(c) for c in data[0]]
                            for pid, data in t["placements"].items()},
             "rotations": rotations,
+            "min_rotations_required": max(min_rot, 0),
         })
 
     if not ok:

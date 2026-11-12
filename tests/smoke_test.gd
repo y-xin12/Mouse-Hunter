@@ -36,7 +36,7 @@ func _run_tests() -> void:
 	gm = main
 	_check(gm.level != null, "level 1 loaded")
 	_check(gm.pieces.size() == 6, "6 pieces instanced")
-	_check(LevelLoader.level_count() == 3, "3 levels discovered")
+	_check(LevelLoader.level_count() == 5, "5 levels discovered")
 	_check(gm.level.mice.size() == 3, "level 1 has 3 mice")
 	_check(gm.level_label.text == "Level 1 — Kitchen", "level label text")
 
@@ -123,6 +123,29 @@ func _run_tests() -> void:
 	_check(gm.level.id == "bedroom_003", "level 3 loaded")
 	_apply_solution(data["levels"][2])
 	_check(gm.won, "win detected for level 3 solution")
+
+	# --- Rotation-required levels 4 and 5 ---------------------------------
+	gm._next_level()
+	_check(gm.level.id == "bathroom_004", "level 4 loaded")
+	_check(gm.level_label.text == "Level 4 — Bathroom", "level 4 label")
+	var lvl4: Dictionary = data["levels"][3]
+	_apply_solution(lvl4)
+	_check(gm.won, "win detected for level 4 solution")
+	_check(int(lvl4["min_rotations_required"]) >= 1,
+			"level 4 cannot be won without rotation (solver-verified)")
+	_check(_solution_uses_rotation(lvl4),
+			"level 4 reference solution actually rotates pieces")
+
+	gm._next_level()
+	_check(gm.level.id == "attic_005", "level 5 loaded")
+	_check(gm.level.mice.size() == 6, "level 5 has 6 mice")
+	var lvl5: Dictionary = data["levels"][4]
+	_apply_solution(lvl5)
+	_check(gm.won, "win detected for level 5 solution")
+	_check(int(lvl5["min_rotations_required"]) >= 1,
+			"level 5 cannot be won without rotation (solver-verified)")
+	_check(_solution_uses_rotation(lvl5),
+			"level 5 reference solution actually rotates pieces")
 	_check(gm.next_button.text == "Play Again", "last level button text")
 
 	gm._next_level()
@@ -180,6 +203,15 @@ func _tap(p: PuzzlePiece) -> void:
 	var pos := _piece_center(p)
 	_mouse_event(true, pos)
 	_mouse_event(false, pos)
+
+
+func _solution_uses_rotation(lvl: Dictionary) -> bool:
+	## True when the replayed solution places at least one piece in a
+	## non-default orientation (i.e. the player must rotate to win).
+	for pid in lvl["rotations"]:
+		if int(lvl["rotations"][pid]) != 0:
+			return true
+	return false
 
 
 func _apply_solution(lvl: Dictionary) -> void:

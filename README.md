@@ -54,8 +54,9 @@ Required
 - [x] Simple success feedback and next-level navigation.
 MVP Implementation Notes
 - Board: 4 x 6 grid (24 cells) fully covered by six 4-cell pieces, each with one circular opening. The piece set (square, plank, corner, hook, step, skew) is checkerboard-balanced so a full tiling exists; the T shape is intentionally excluded because a single imbalanced piece can never tile an even-area rectangle.
-- Pieces are Godot Resources (`data/pieces/*.tres`); levels reference them and define board size, room name and mice (`data/levels/level_001..003.tres`). New levels are discovered automatically by directory scan.
-- Levels: Kitchen (3 mice, 16 solutions), Living Room (5 mice, 4 solutions), Bedroom (6 mice, unique solution). All verified solvable by `tests/level_solver.py`, which enumerates every legal tiling with the same rotation math as the game.
+- Pieces are Godot Resources (`data/pieces/*.tres`); levels reference them and define board size, room name and mice (`data/levels/level_001..005.tres`). New levels are discovered automatically by directory scan.
+- Levels: Kitchen (3 mice, 16 solutions), Living Room (5 mice, 4 solutions), Bedroom (6 mice, unique), Bathroom (4 mice, 8 solutions), Attic (6 mice, unique). All verified solvable by `tests/level_solver.py`, which enumerates every legal tiling with the same rotation math as the game.
+- Rotation levels: Bedroom, Bathroom and Attic cannot be won without rotating pieces (minimum 2-3 required rotations, solver-verified; the solver matches placed cells AND opening cells, since plank/step/skew silhouettes are 180-degree symmetric while their openings move).
 - Gameplay logic is rendering-independent: `scripts/placement_validator.gd` does pure board-space cell math; `scripts/piece_definition.gd` owns rotation transforms. Piece textures (opaque cells + transparent punched holes) are generated procedurally from the same data.
 - Input: one code path for mouse and touch (Godot's emulate_mouse_from_touch). Drag to move, tap (or R key) to rotate 90° clockwise, drop to snap; illegal drops and blocked rotations are rejected with a green/red snap preview. The HUD is authored directly in `scenes/main.tscn` for easy manual editing in the editor.
 Later (Not MVP)
