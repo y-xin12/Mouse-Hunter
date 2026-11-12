@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PieceDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/piece_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = "step"
+display_name = "Step"
+color = Color(0.937, 0.278, 0.435, 1)
+cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(2, 1)])
+openings = Array[Vector2i]([Vector2i(1, 1)])
