@@ -14,4 +14,5 @@ id = "kitchen_001"
 room = "kitchen"
 board_size = Vector2i(4, 6)
 mice = Array[Vector2i]([Vector2i(0, 4), Vector2i(1, 0), Vector2i(2, 1)])
+walls = Array[Vector2i]([Vector2i(1, 0), Vector2i(2, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(2, 1), Vector2i(2, 2), Vector2i(0, 4), Vector2i(1, 4), Vector2i(3, 0), Vector2i(3, 1), Vector2i(0, 1), Vector2i(1, 1), Vector2i(1, 1), Vector2i(1, 2), Vector2i(0, 2), Vector2i(0, 3), Vector2i(2, 2), Vector2i(3, 2)])
 pieces = [ExtResource("2_square"), ExtResource("3_plank"), ExtResource("4_corner"), ExtResource("5_step"), ExtResource("6_hook"), ExtResource("7_skew")]

@@ -1,14 +1,16 @@
 class_name BoardController
 extends Node2D
-## Draws the board frame, grid, placeholder mice and the drag preview
-## overlay. Owns board-space <-> world-space conversion for the current
-## layout. Mice are drawn by this node so they always render BELOW the
-## pieces (the Pieces node is later in the scene tree) and only show
-## through a piece's transparent openings.
+## Draws the board frame, grid, wall hints, placeholder mice and the drag
+## preview overlay. Owns board-space <-> world-space conversion for the
+## current layout. Mice are drawn by this node so they always render BELOW
+## the pieces (the Pieces node is later in the scene tree) and only show
+## through a piece's transparent openings. Walls are short rough outlines
+## on cell edges; no piece may be placed across them.
 
 const FRAME_COLOR := Color(0.42, 0.27, 0.15)
 const BOARD_COLOR := Color(0.97, 0.91, 0.79)
 const GRID_COLOR := Color(0.85, 0.76, 0.61)
+const WALL_COLOR := Color(0.25, 0.16, 0.09)
 const PREVIEW_OK := Color(0.25, 0.75, 0.3, 0.45)
 const PREVIEW_BAD := Color(0.9, 0.25, 0.2, 0.45)
 const PREVIEW_HOLE := Color(1, 1, 1, 0.7)
@@ -16,6 +18,9 @@ const FRAME_PAD := 14.0
 
 var board_size := Vector2i(4, 6)
 var mice: Array[Vector2i] = []
+## Flat pairs of adjacent cells (a1, b1, a2, b2, ...); the edge shared by
+## each pair is walled and no piece may be placed across it.
+var walls: Array[Vector2i] = []
 var cell_px := 128.0
 ## World position of board cell (0, 0).
 var board_origin := Vector2.ZERO
@@ -25,9 +30,11 @@ var preview_openings: Array[Vector2i] = []
 var preview_legal := false
 
 
-func setup(size: Vector2i, level_mice: Array[Vector2i]) -> void:
+func setup(size: Vector2i, level_mice: Array[Vector2i],
+		level_walls: Array[Vector2i]) -> void:
 	board_size = size
 	mice = level_mice.duplicate()
+	walls = level_walls.duplicate()
 	preview_cells = []
 	preview_openings = []
 	queue_redraw()
@@ -87,6 +94,10 @@ func _draw() -> void:
 		var gy := board_origin.y + y * cell_px
 		draw_line(Vector2(board_origin.x, gy), Vector2(board_end.x, gy), GRID_COLOR, 2.0)
 
+	# Wall hints: short rough outlines on edges between cells.
+	for i in range(0, walls.size(), 2):
+		_draw_wall_edge(walls[i], walls[i + 1], i)
+
 	# Hidden mice (below pieces; visible only through openings).
 	for m in mice:
 		_draw_mouse(cell_to_world(m) + Vector2(cell_px, cell_px) * 0.5)
@@ -108,6 +119,41 @@ func _draw() -> void:
 func _is_cell_in_bounds(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.y >= 0 \
 			and cell.x < board_size.x and cell.y < board_size.y
+
+
+func _draw_wall_edge(a: Vector2i, b: Vector2i, index: int) -> void:
+	## One short rough, hand-drawn-looking stroke across the edge shared by
+	## cells a and b. The jitter is hashed from the wall index so the
+	## outline stays stable between redraws instead of flickering.
+	var a_center := cell_to_world(a) + Vector2(cell_px, cell_px) * 0.5
+	var b_center := cell_to_world(b) + Vector2(cell_px, cell_px) * 0.5
+	var mid := (a_center + b_center) * 0.5
+	var run := (b_center - a_center).orthogonal().normalized()
+	var normal := run.orthogonal()
+	var start := mid - run * (cell_px * 0.55)
+	var end := mid + run * (cell_px * 0.55)
+	var pts := PackedVector2Array()
+	var steps := 6
+	for j in range(steps + 1):
+		var t := float(j) / float(steps)
+		var wobble := (_hash01(index, j) - 0.5) * 2.0
+		var taper := sin(t * PI)
+		pts.append(start.lerp(end, t)
+				+ normal * (wobble * taper * cell_px * 0.07))
+	draw_polyline(pts, WALL_COLOR, max(cell_px * 0.08, 2.0), true)
+	# A fainter offset pass gives it the rough sketched look.
+	for k in pts.size():
+		pts[k] = pts[k] + normal * (cell_px * 0.05) + run * (cell_px * 0.03)
+	draw_polyline(pts, Color(WALL_COLOR.r, WALL_COLOR.g, WALL_COLOR.b, 0.35),
+			max(cell_px * 0.05, 1.5), true)
+
+
+func _hash01(a: int, b: int) -> float:
+	## Deterministic pseudo-random value in [0, 1).
+	var h := (a * 73856093) ^ (b * 19349663)
+	h = (h ^ (h >> 13)) * 1274126177
+	h = h ^ (h >> 16)
+	return float(h & 0xFFFF) / 65536.0
 
 
 func _draw_mouse(center: Vector2) -> void:
