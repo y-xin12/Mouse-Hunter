@@ -41,17 +41,23 @@ Level data	Godot Resources or JSON
 Use responsive layouts and consistent coordinate conversion between screen space and board space. Dragging must work with both mouse and touchscreen input.
 Minimum Viable Prototype (MVP)
 Required
-- [ ] Main puzzle board with configurable dimensions.
-- [ ] Six distinct puzzle pieces defined by data, not hard-coded positions.
-- [ ] Visible mouse markers placed at level-defined coordinates.
-- [ ] Opaque tile areas and circular transparent openings.
-- [ ] Drag-and-drop controls for mouse and touch.
-- [ ] Piece rotation and grid snapping.
-- [ ] Legal-placement checks: inside board, no overlap, and correct coverage.
-- [ ] Win detection: all pieces legally placed and all target mice revealed.
-- [ ] Reset level and restart controls.
-- [ ] At least three original, hand-authored test levels.
-- [ ] Simple success feedback and next-level navigation.
+- [x] Main puzzle board with configurable dimensions.
+- [x] Six distinct puzzle pieces defined by data, not hard-coded positions.
+- [x] Visible mouse markers placed at level-defined coordinates.
+- [x] Opaque tile areas and circular transparent openings.
+- [x] Drag-and-drop controls for mouse and touch.
+- [x] Piece rotation and grid snapping.
+- [x] Legal-placement checks: inside board, no overlap, and correct coverage.
+- [x] Win detection: all pieces legally placed and all target mice revealed.
+- [x] Reset level and restart controls.
+- [x] At least three original, hand-authored test levels.
+- [x] Simple success feedback and next-level navigation.
+MVP Implementation Notes
+- Board: 4 x 6 grid (24 cells) fully covered by six 4-cell pieces, each with one circular opening. The piece set (square, plank, corner, hook, step, skew) is checkerboard-balanced so a full tiling exists; the T shape is intentionally excluded because a single imbalanced piece can never tile an even-area rectangle.
+- Pieces are Godot Resources (`data/pieces/*.tres`); levels reference them and define board size, room name and mice (`data/levels/level_001..003.tres`). New levels are discovered automatically by directory scan.
+- Levels: Kitchen (3 mice, 16 solutions), Living Room (5 mice, 4 solutions), Bedroom (6 mice, unique solution). All verified solvable by `tests/level_solver.py`, which enumerates every legal tiling with the same rotation math as the game.
+- Gameplay logic is rendering-independent: `scripts/placement_validator.gd` does pure board-space cell math; `scripts/piece_definition.gd` owns rotation transforms. Piece textures (opaque cells + transparent punched holes) are generated procedurally from the same data.
+- Input: one code path for mouse and touch (Godot's emulate_mouse_from_touch). Drag to move, tap (or R key) to rotate 90° clockwise, drop to snap; illegal drops and blocked rotations are rejected with a green/red snap preview. The HUD is authored directly in `scenes/main.tscn` for easy manual editing in the editor.
 Later (Not MVP)
 - Hint system and undo.
 - Additional rooms and difficulty tiers.
@@ -120,15 +126,20 @@ Development Guidelines
 - Ask for approval before modifying AGENTS.md or changing the project's established development rules.
 - Update this README when setup, architecture, core mechanics, or project scope changes.
 Development Milestones
-1. Foundation: Godot project, board, placeholder pieces, basic layout.
-2. Interaction: Drag, touch, rotate, snap, and placement feedback.
-3. Puzzle Logic: Legal-placement validation, mouse reveal detection, win condition.
-4. Playable Content: Three verified levels, reset, next-level flow.
+1. Foundation: Godot project, board, placeholder pieces, basic layout. (done)
+2. Interaction: Drag, touch, rotate, snap, and placement feedback. (done)
+3. Puzzle Logic: Legal-placement validation, mouse reveal detection, win condition. (done)
+4. Playable Content: Three verified levels, reset, next-level flow. (done)
 5. House Theme: Original mouse art, kitchen backdrop, UI styling, simple effects.
 6. Expansion: Additional rooms, hints, progression, and puzzle generator.
+Running and Testing
+- Open the project in Godot 4.x and press Play (main scene: `scenes/main.tscn`), or run the editor binary directly with the project path.
+- Controls: drag a piece with mouse or touch to move it; tap a piece (press + quick release without moving) or press R to rotate it 90° clockwise; drop on the board to snap. Illegal drops return the piece to the tray; placed pieces only rotate if the rotation stays legal. Win by covering the board completely with all openings revealing every mouse.
+- Verify level solvability (also regenerates `tests/solutions.json`): `python3 tests/level_solver.py`
+- Headless smoke test (loads the main scene, simulates drag/tap input, replays solver solutions, checks win/reset/next-level flow; cross-checks GDScript placement math against the Python solver): run the Godot binary with `--headless --path . --script res://tests/smoke_test.gd` — it prints PASS/FAIL lines and exits non-zero on failure.
 Reference and Attribution
 Gameplay inspiration: Ghost Hunters — SmartGames.
 
 Mouse-Hunter is an independent project and is not affiliated with, sponsored by, or endorsed by SmartGames, Warner Bros., or the creators/owners of Tom & Jerry. Do not copy reference artwork, character likenesses, branding, challenge cards, or published level solutions into this repository without appropriate rights.
 Project Status
-Planning / pre-production. The README defines the intended implementation; no gameplay functionality is claimed to be complete.
+MVP complete: all Minimum Viable Prototype requirements are implemented and validated headlessly (see Running and Testing). Art is placeholder (procedural shapes); interactive feel on a real display still needs manual playtesting. Next up: milestone 5 (house theme and original art).

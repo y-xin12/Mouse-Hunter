@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PieceDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/piece_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = "skew"
+display_name = "Skew"
+color = Color(1, 0.82, 0.4, 1)
+cells = Array[Vector2i]([Vector2i(0, 1), Vector2i(1, 1), Vector2i(1, 0), Vector2i(2, 0)])
+openings = Array[Vector2i]([Vector2i(1, 1)])
