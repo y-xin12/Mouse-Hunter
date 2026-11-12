@@ -9,13 +9,19 @@ extends Node2D
 const PIECE_SCENE := preload("res://scenes/puzzle_piece.tscn")
 const TAP_MAX_MOVE := 16.0
 const TAP_MAX_SECONDS := 0.45
-const TOP_HUD_HEIGHT := 108.0
+## Vertical space reserved for the header, instruction and goal labels.
+const TOP_HUD_HEIGHT := 150.0
+## Fraction of the remaining height given to the board (rest is the tray).
+const BOARD_ZONE_RATIO := 0.56
+const SCREEN_MARGIN := 8.0
 const Z_PLACED := 5
 const Z_DRAGGING := 100
 
 @onready var board: BoardController = %Board
 @onready var pieces_root: Node2D = %Pieces
+@onready var tray_backdrop = %TrayBackdrop
 @onready var level_label: Label = %LevelLabel
+@onready var goal_label: Label = %GoalLabel
 @onready var reset_button: Button = %ResetButton
 @onready var win_panel: Control = %WinPanel
 @onready var win_subtitle: Label = %WinSubtitle
@@ -64,6 +70,7 @@ func _load_level(index: int) -> void:
 		pp.setup(def)
 		pieces.append(pp)
 	level_label.text = "Level %d — %s" % [index + 1, level.get_room_title()]
+	goal_label.text = "FIND ALL %d MICE" % level.mice.size()
 	win_panel.visible = false
 	board.clear_preview()
 	_layout()
@@ -79,19 +86,27 @@ func _layout() -> void:
 	var vp := get_viewport().get_visible_rect().size
 	var vp_x: float = max(vp.x, 320.0)
 	var vp_y: float = max(vp.y, 480.0)
-	var board_area := Rect2(Vector2(12, TOP_HUD_HEIGHT),
-			Vector2(vp_x - 24.0, (vp_y - TOP_HUD_HEIGHT) * 0.55))
-	var cell := board_area.size.x / level.board_size.x
-	cell = min(cell, board_area.size.y / level.board_size.y)
+	# Reserve room for the wooden frame so it never overlaps the header/tray.
+	var frame_pad: float = BoardController.FRAME_PAD
+	var usable := Rect2(Vector2(SCREEN_MARGIN, TOP_HUD_HEIGHT),
+			Vector2(vp_x - SCREEN_MARGIN * 2.0, vp_y - TOP_HUD_HEIGHT - SCREEN_MARGIN))
+	var board_zone_h: float = usable.size.y * BOARD_ZONE_RATIO
+	var max_board_w: float = max(usable.size.x - frame_pad * 2.0, 32.0)
+	var max_board_h: float = max(board_zone_h - frame_pad * 2.0, 32.0)
+	var cell := max_board_w / level.board_size.x
+	cell = min(cell, max_board_h / level.board_size.y)
 	cell = clamp(cell, 24.0, 512.0)
 	board_scale = cell / PuzzlePiece.CELL_PX
 	var board_size_px := Vector2(level.board_size) * cell
-	var origin := Vector2((vp_x - board_size_px.x) * 0.5,
-			board_area.position.y + (board_area.size.y - board_size_px.y) * 0.5)
+	var origin := usable.position + Vector2(
+			(usable.size.x - board_size_px.x) * 0.5,
+			(board_zone_h - board_size_px.y) * 0.5)
 	board.layout(origin, cell)
-	var tray_top := origin.y + board_size_px.y + 24.0
-	tray_rect = Rect2(Vector2(12, tray_top),
-			Vector2(vp_x - 24.0, vp_y - tray_top - 12.0))
+	var tray_top: float = usable.position.y + board_zone_h + 6.0
+	tray_rect = Rect2(Vector2(usable.position.x, tray_top),
+			Vector2(usable.size.x, max(usable.end.y - tray_top - 4.0, 40.0)))
+	if tray_backdrop != null:
+		tray_backdrop.set_rect(tray_rect)
 	_refresh_all_pieces()
 
 
@@ -155,8 +170,11 @@ func _on_press(world_point: Vector2) -> void:
 	var piece := _pick_piece(world_point)
 	if piece == null:
 		return
+	if selected != null and selected != piece:
+		selected.set_visual_state(PuzzlePiece.VisualState.NORMAL)
 	selected = piece
 	dragging = piece
+	piece.set_visual_state(PuzzlePiece.VisualState.SELECTED)
 	grab_offset = world_point - piece.global_position
 	press_position = world_point
 	press_time = Time.get_ticks_msec() / 1000.0
@@ -180,6 +198,7 @@ func _on_drag(world_point: Vector2) -> void:
 		moved_far = true
 		# The press became a real drag: lift the piece off the board now.
 		dragging.placed = false
+		dragging.set_visual_state(PuzzlePiece.VisualState.DRAGGING)
 	dragging.global_position = world_point - grab_offset
 	_update_preview()
 
@@ -189,6 +208,7 @@ func _on_release(world_point: Vector2) -> void:
 		return
 	var piece := dragging
 	dragging = null
+	piece.set_visual_state(PuzzlePiece.VisualState.NORMAL)
 	var elapsed := Time.get_ticks_msec() / 1000.0 - press_time
 	var is_tap := not moved_far and elapsed <= TAP_MAX_SECONDS
 	if is_tap:
@@ -287,6 +307,7 @@ func _reset_level() -> void:
 		p.placed = false
 		p.board_position = Vector2i(-1, -1)
 		p.set_orientation(0)
+		p.set_visual_state(PuzzlePiece.VisualState.NORMAL)
 		p.z_index = Z_PLACED
 		_apply_tray_slot(p)
 

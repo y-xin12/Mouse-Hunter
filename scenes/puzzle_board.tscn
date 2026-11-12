@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://cpk16va7v4wbo"]
 
-[ext_resource type="Script" path="res://scripts/board_controller.gd" id="1_board"]
+[ext_resource type="Script" uid="uid://crtnjqhkaalmx" path="res://scripts/board_controller.gd" id="1_board"]
 
-[node name="PuzzleBoard" type="Node2D"]
+[node name="PuzzleBoard" type="Node2D" unique_id=1612837350]
 script = ExtResource("1_board")

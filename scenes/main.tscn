@@ -1,13 +1,97 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_gm"]
 [ext_resource type="PackedScene" path="res://scenes/puzzle_board.tscn" id="2_board"]
+[ext_resource type="Script" path="res://scripts/tray_backdrop.gd" id="3_tray"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_topbar"]
+bg_color = Color(0.995, 0.95, 0.87, 1)
+border_width_bottom = 4
+border_color = Color(0.86, 0.68, 0.44, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_left = 24
+corner_radius_bottom_right = 24
+shadow_color = Color(0.42, 0.27, 0.12, 0.18)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_goal"]
+bg_color = Color(0.99, 0.85, 0.55, 1)
+border_width_bottom = 3
+border_color = Color(0.86, 0.62, 0.30, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
+shadow_color = Color(0.42, 0.27, 0.12, 0.14)
+shadow_size = 5
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_win"]
+bg_color = Color(0.995, 0.95, 0.87, 1)
+border_width_bottom = 4
+border_color = Color(0.86, 0.68, 0.44, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_left = 28
+corner_radius_bottom_right = 28
+shadow_color = Color(0.30, 0.18, 0.06, 0.28)
+shadow_size = 18
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0.98, 0.76, 0.42, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 4
+border_color = Color(0.85, 0.58, 0.25, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_left = 16
+corner_radius_bottom_right = 16
+shadow_color = Color(0.42, 0.27, 0.12, 0.20)
+shadow_size = 4
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(1, 0.83, 0.54, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 4
+border_color = Color(0.88, 0.62, 0.28, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_left = 16
+corner_radius_bottom_right = 16
+shadow_color = Color(0.42, 0.27, 0.12, 0.22)
+shadow_size = 5
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+bg_color = Color(0.92, 0.68, 0.36, 1)
+border_width_left = 3
+border_width_top = 4
+border_width_right = 3
+border_width_bottom = 2
+border_color = Color(0.80, 0.54, 0.22, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_left = 16
+corner_radius_bottom_right = 16
+
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_gm")
 
 [node name="Board" parent="." instance=ExtResource("2_board")]
 unique_name_in_owner = true
+
+[node name="TrayBackdrop" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_tray")
 
 [node name="Pieces" type="Node2D" parent="."]
 unique_name_in_owner = true
@@ -21,40 +105,71 @@ anchor_right = 1.0
 offset_left = 10.0
 offset_top = 8.0
 offset_right = -10.0
-offset_bottom = 64.0
+offset_bottom = 74.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_topbar")
 
 [node name="Margin" type="MarginContainer" parent="HUD/TopBar"]
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 16
+theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 8
 
 [node name="HBox" type="HBoxContainer" parent="HUD/TopBar/Margin"]
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="LevelLabel" type="Label" parent="HUD/TopBar/Margin/HBox"]
 unique_name_in_owner = true
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
 theme_override_font_sizes/font_size = 26
 text = "Level 1"
 vertical_alignment = 1
 
 [node name="ResetButton" type="Button" parent="HUD/TopBar/Margin/HBox"]
 unique_name_in_owner = true
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
+theme_override_colors/font_hover_color = Color(0.30, 0.19, 0.09, 1)
+theme_override_colors/font_pressed_color = Color(0.30, 0.19, 0.09, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button")
 text = "Reset"
-
-
 
 [node name="HintLabel" type="Label" parent="HUD"]
 unique_name_in_owner = true
 anchor_right = 1.0
 offset_left = 10.0
-offset_top = 72.0
+offset_top = 78.0
 offset_right = -10.0
-offset_bottom = 98.0
-theme_override_font_sizes/font_size = 20
-text = "Drag to move  ·  Tap to rotate"
+offset_bottom = 104.0
+theme_override_colors/font_color = Color(0.52, 0.38, 0.24, 1)
+theme_override_font_sizes/font_size = 18
+text = "DRAG TO MOVE  ·  TAP TO ROTATE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GoalPanel" type="PanelContainer" parent="HUD"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -110.0
+offset_top = 112.0
+offset_right = 110.0
+offset_bottom = 144.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_goal")
+
+[node name="Margin" type="MarginContainer" parent="HUD/GoalPanel"]
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 5
+
+[node name="GoalLabel" type="Label" parent="HUD/GoalPanel/Margin"]
+unique_name_in_owner = true
+theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
+theme_override_font_sizes/font_size = 16
+text = "FIND ALL 3 MICE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -64,29 +179,32 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -190.0
-offset_top = -140.0
-offset_right = 190.0
-offset_bottom = 140.0
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
 visible = false
+theme_override_styles/panel = SubResource("StyleBoxFlat_win")
 
 [node name="Margin" type="MarginContainer" parent="HUD/WinPanel"]
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 20
+theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_bottom = 22
 
 [node name="VBox" type="VBoxContainer" parent="HUD/WinPanel/Margin"]
 theme_override_constants/separation = 16
 
 [node name="WinLabel" type="Label" parent="HUD/WinPanel/Margin/VBox"]
 unique_name_in_owner = true
+theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
 theme_override_font_sizes/font_size = 34
 text = "Level Complete!"
 horizontal_alignment = 1
 
 [node name="WinSubtitle" type="Label" parent="HUD/WinPanel/Margin/VBox"]
 unique_name_in_owner = true
+theme_override_colors/font_color = Color(0.46, 0.32, 0.18, 1)
 theme_override_font_sizes/font_size = 22
 text = "You found all the mice!"
 horizontal_alignment = 1
@@ -97,11 +215,25 @@ theme_override_constants/separation = 16
 [node name="RestartButton" type="Button" parent="HUD/WinPanel/Margin/VBox/Buttons"]
 unique_name_in_owner = true
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
+theme_override_colors/font_hover_color = Color(0.30, 0.19, 0.09, 1)
+theme_override_colors/font_pressed_color = Color(0.30, 0.19, 0.09, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button")
 text = "Restart"
 
 [node name="NextButton" type="Button" parent="HUD/WinPanel/Margin/VBox/Buttons"]
 unique_name_in_owner = true
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
+theme_override_colors/font_hover_color = Color(0.30, 0.19, 0.09, 1)
+theme_override_colors/font_pressed_color = Color(0.30, 0.19, 0.09, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button")
 text = "Next Level"
