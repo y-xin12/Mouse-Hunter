@@ -1,0 +1,29 @@
+# Godot 4.x generated files
+.godot/
+
+# Godot export builds
+/export/
+/build/
+/dist/
+
+# Export credentials
+export_credentials.cfg
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# VS Code local settings
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Temporary files
+*.tmp
+*.bak
+*.log
