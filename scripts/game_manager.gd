@@ -33,9 +33,6 @@ var pieces: Array = []  # Array of PuzzlePiece
 
 var board_scale := 1.0
 var tray_rect := Rect2()
-## Wall edges for the current level, as a PlacementValidator lookup built
-## from level.walls.
-var wall_edges := {}
 
 var dragging: PuzzlePiece = null
 var selected: PuzzlePiece = null
@@ -66,8 +63,7 @@ func _load_level(index: int) -> void:
 	for p in pieces:
 		p.queue_free()
 	pieces.clear()
-	board.setup(level.board_size, level.mice, level.walls)
-	wall_edges = PlacementValidator.walls_from_pairs(level.walls)
+	board.setup(level.board_size, level.mice)
 	for def in level.pieces:
 		var pp: PuzzlePiece = PIECE_SCENE.instantiate()
 		pieces_root.add_child(pp)
@@ -245,8 +241,7 @@ func _rotate_piece(piece: PuzzlePiece) -> void:
 		# A placed piece may only rotate if it stays legal where it is.
 		var occupied := PlacementValidator.get_occupied_cells(pieces, piece)
 		if PlacementValidator.is_placement_legal(piece.definition,
-				new_orientation, piece.board_position, level.board_size, occupied,
-				wall_edges):
+				new_orientation, piece.board_position, level.board_size, occupied):
 			piece.set_orientation(new_orientation)
 			piece.global_position = board.cell_to_world(piece.board_position)
 	else:
@@ -257,7 +252,7 @@ func _try_place(piece: PuzzlePiece) -> void:
 	var cell := board.world_to_cell_snapped(piece.global_position)
 	var occupied := PlacementValidator.get_occupied_cells(pieces, piece)
 	if PlacementValidator.is_placement_legal(piece.definition, piece.orientation,
-			cell, level.board_size, occupied, wall_edges):
+			cell, level.board_size, occupied):
 		piece.placed = true
 		piece.board_position = cell
 		piece.z_index = Z_PLACED
@@ -280,7 +275,7 @@ func _update_preview() -> void:
 			dragging.definition, dragging.orientation, cell)
 	var occupied := PlacementValidator.get_occupied_cells(pieces, dragging)
 	var legal := PlacementValidator.is_placement_legal(dragging.definition,
-			dragging.orientation, cell, level.board_size, occupied, wall_edges)
+			dragging.orientation, cell, level.board_size, occupied)
 	board.set_preview(world_cells, world_openings, legal)
 
 
