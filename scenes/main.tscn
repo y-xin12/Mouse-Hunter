@@ -357,10 +357,12 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 script = ExtResource("3_tray")
 
-[node name="PiecesLayer" type="CanvasLayer" parent="."]
-layer = 2
+[node name="TrayClip" type="Control" parent="."]
+unique_name_in_owner = true
+clip_contents = true
+mouse_filter = 2
 
-[node name="Pieces" type="Node2D" parent="PiecesLayer"]
+[node name="Pieces" type="Node2D" parent="."]
 unique_name_in_owner = true
 
 [node name="HUD" type="CanvasLayer" parent="."]
@@ -419,6 +421,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="GoalPanel" type="PanelContainer" parent="HUD"]
+unique_name_in_owner = true
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -110.0

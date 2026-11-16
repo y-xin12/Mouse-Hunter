@@ -5,11 +5,12 @@ extends SceneTree
 ##
 ## Verifies the mobile UI across window sizes (720x1280 base, 1080x2400
 ## and 1440x2960 tall phones):
-##   - the project's stretch settings (canvas_items + expand on the
-##     720x1280 base) yield a uniform device scale and the expected
-##     expanded canvas
+##   - the project's stretch settings (read live from ProjectSettings,
+##     including the stretch scale) yield a uniform device scale and the
+##     expected expanded canvas
 ##   - board cells stay perfectly square (1:1) at every aspect ratio
 ##   - the board stays centered, below the HUD and above the tray
+##   - the tray carousel shows at most three pieces at one shared scale
 ##   - simulated drag-and-drop and tap-to-rotate hit exactly at every size
 ##   - a window resize after load re-runs the responsive layout
 ##
@@ -17,7 +18,6 @@ extends SceneTree
 ## stretch settings from project.godot are applied to the root window
 ## manually before the main scene is measured.
 
-const BASE_SIZE := Vector2(720, 1280)
 const TOLERANCE := 0.6
 ## project.godot's display/window/stretch/scale (content_scale_factor). The
 ## stretch settings are mirrored onto the root window manually below.
@@ -31,6 +31,8 @@ const RESOLUTIONS := [
 
 var failures := 0
 var gm: Node2D
+var base_size := Vector2(720, 1280)
+var stretch_scale := 1.0
 
 
 func _initialize() -> void:
@@ -60,15 +62,49 @@ func _run_tests() -> void:
 # ---------------------------------------------------------------------------
 
 func _prepare_window() -> void:
-	## Mirror project.godot's display settings (canvas_items + expand on a
-	## 720x1280 base) onto the root window. Warm up first: the headless
+	## Mirror project.godot's display settings onto the root window,
+	## reading them live from ProjectSettings so the test stays truthful
+	## when the stretch configuration changes. Warm up first: the headless
 	## window can swallow size requests made before it exists.
 	await process_frame
 	await process_frame
-	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
-	root.content_scale_size = BASE_SIZE
-	root.content_scale_factor = STRETCH_SCALE
+	base_size = Vector2(
+			ProjectSettings.get_setting("display/window/size/viewport_width", 720),
+			ProjectSettings.get_setting("display/window/size/viewport_height", 1280))
+	stretch_scale = ProjectSettings.get_setting(
+			"display/window/stretch/scale", 1.0)
+	root.content_scale_mode = _stretch_mode(ProjectSettings.get_setting(
+			"display/window/stretch/mode", "disabled"))
+	root.content_scale_aspect = _stretch_aspect(ProjectSettings.get_setting(
+			"display/window/stretch/aspect", "ignore"))
+	root.content_scale_size = base_size
+	root.content_scale_factor = stretch_scale
+	_check(root.content_scale_aspect == Window.CONTENT_SCALE_ASPECT_EXPAND,
+		"project uses the expand aspect (this test assumes it)")
+
+
+func _stretch_mode(mode_name: String) -> int:
+	match mode_name:
+		"canvas_items":
+			return Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+		"viewport":
+			return Window.CONTENT_SCALE_MODE_VIEWPORT
+		_:
+			return Window.CONTENT_SCALE_MODE_DISABLED
+
+
+func _stretch_aspect(aspect_name: String) -> int:
+	match aspect_name:
+		"keep":
+			return Window.CONTENT_SCALE_ASPECT_KEEP
+		"keep_width":
+			return Window.CONTENT_SCALE_ASPECT_KEEP_WIDTH
+		"keep_height":
+			return Window.CONTENT_SCALE_ASPECT_KEEP_HEIGHT
+		"expand":
+			return Window.CONTENT_SCALE_ASPECT_EXPAND
+		_:
+			return Window.CONTENT_SCALE_ASPECT_IGNORE
 
 
 func _set_window_size(sz: Vector2i) -> bool:
@@ -92,8 +128,8 @@ func _test_resolution(res: Vector2i) -> void:
 	_check(ok, "window resized to %d x %d" % [res.x, res.y])
 
 	# canvas_items + expand math: uniform scale, canvas = window / scale.
-	var dev_scale: float = min(res.x / BASE_SIZE.x, res.y / BASE_SIZE.y) \
-			* STRETCH_SCALE
+	var dev_scale: float = min(res.x / base_size.x, res.y / base_size.y) \
+			* stretch_scale
 	var expected_canvas: Vector2 = Vector2(res) / dev_scale
 	var canvas: Vector2 = root.get_visible_rect().size
 	_check(canvas.distance_to(expected_canvas) < TOLERANCE,
@@ -146,10 +182,38 @@ func _layout_checks(canvas: Vector2) -> void:
 	_check(frame.position.x >= 0.0 and frame.end.x <= canvas.x,
 		"frame fits the screen width")
 
+	# The tray is a distinct strip: inset from both screen edges with a
+	# clear gap below the board frame.
+	_check(gm.tray_rect.position.x > 0.0 and gm.tray_rect.end.x < canvas.x,
+		"tray inset from both screen edges (x %.1f..%.1f of %.1f)"
+		% [gm.tray_rect.position.x, gm.tray_rect.end.x, canvas.x])
+	_check(gm.tray_rect.position.y - frame.end.y >= gm.TRAY_TOP_GAP - TOLERANCE,
+		"clear gap between the board frame and the tray")
+	# Resting pieces live under the tray's clip region so scrolling cuts
+	# them at the frame instead of drawing over it.
+	_check(gm.pieces[0].get_parent() == gm.tray_clip,
+		"resting tray piece is parented to the clip region")
+
 	# Pieces keep a uniform scale (never stretched into rectangles).
 	var p: PuzzlePiece = gm.pieces[0]
 	_check(abs(p.scale.x - p.scale.y) < 0.0001,
 		"piece scale uniform (%.3f x %.3f)" % [p.scale.x, p.scale.y])
+
+	# Tray carousel: one shared scale for every resting piece, and at most
+	# three pieces visible at once.
+	var tray_scale := -1.0
+	var tray_visible := 0
+	for q in gm.pieces:
+		if q.placed:
+			continue
+		if tray_scale < 0.0:
+			tray_scale = q.scale.x
+		elif absf(q.scale.x - tray_scale) > 0.0001:
+			tray_scale = -2.0
+		if q.visible:
+			tray_visible += 1
+	_check(tray_scale > 0.0, "tray pieces share one scale")
+	_check(tray_visible <= 3, "tray shows at most 3 pieces (%d)" % tray_visible)
 
 
 func _input_checks() -> void:
@@ -188,6 +252,18 @@ func _input_checks() -> void:
 	_check(piece.placed and piece.orientation
 			== posmod(orientation_before + 2, 4),
 		"off-center tap inside the cell still hits the piece")
+
+	# Picking up a tray piece lifts it out of the clip region; the tap
+	# re-park puts it back under the clip.
+	var plank: PuzzlePiece = _find_piece("plank")
+	_check(plank.get_parent() == gm.tray_clip,
+		"resting plank sits in the clip region")
+	_mouse_event(true, _piece_center(plank))
+	_check(plank.get_parent() == gm.pieces_root,
+		"picked-up piece leaves the clip region")
+	_mouse_event(false, _piece_center(plank))
+	_check(plank.get_parent() == gm.tray_clip,
+		"tap-returned piece re-enters the clip region")
 
 
 func _test_live_resize() -> void:

@@ -49,6 +49,22 @@ func _run_tests() -> void:
 	_check(gm.level_index == 0, "easy starts at level 1")
 	_check(not gm.win_panel.visible, "popup stays hidden until the level is complete")
 
+	# --- Tray carousel ---------------------------------------------------
+	# Six pieces park in one scrollable row: only the first three slots are
+	# visible at rest and every piece renders at the same scale.
+	var tray_visible := 0
+	for p in gm.pieces:
+		if p.visible:
+			tray_visible += 1
+	_check(tray_visible == 3, "tray shows exactly 3 pieces at rest")
+	var tray_scale: float = gm.pieces[0].scale.x
+	var same_scale := true
+	for p in gm.pieces:
+		if absf(p.scale.x - tray_scale) > 0.0001 \
+				or absf(p.scale.y - tray_scale) > 0.0001:
+			same_scale = false
+	_check(same_scale, "all tray pieces share one scale")
+
 	# --- Validator unit checks ------------------------------------------
 	var piece: PuzzlePiece = gm.pieces[0]  # square
 	var wc: Array[Vector2i] = PlacementValidator.get_world_cells(
@@ -102,11 +118,31 @@ func _run_tests() -> void:
 	_check(gm.move_count == 1, "an illegal drop does not count as a move")
 
 	var hook: PuzzlePiece = _find_piece("hook")
+	# --- Scrolling the tray carousel -------------------------------------
+	# Hook lives in slot 4, beyond the visible window. A horizontal swipe
+	# starting on a tray piece (the plank) must scroll the carousel instead
+	# of dragging the piece, and bring hook into view.
+	_check(not hook.visible, "hook hidden before scrolling")
+	_swipe_tray(_piece_center(plank), -1.4 * gm.tray_slot_w)
+	_check(gm.tray_scroll > 0.0, "swipe scrolled the tray")
+	_check(not plank.placed and plank.visible,
+			"swiped piece stayed parked in the tray")
+	_check(hook.visible, "hook scrolled into view")
 	var old_orientation := hook.orientation
+	var old_hook_scale: Vector2 = hook.scale
 	_tap(hook)
 	_check(hook.orientation == posmod(old_orientation + 1, 4),
 			"tap rotates tray piece")
 	_check(not hook.placed, "tap-rotated piece parked in tray")
+	_check(hook.visible, "tap-rotated piece still visible in the tray")
+	_check(absf(hook.scale.x - old_hook_scale.x) < 0.0001
+			and absf(hook.scale.y - old_hook_scale.y) < 0.0001,
+			"rotating a tray piece keeps its size")
+	# Swipe back the other way so later drag tests start from rest.
+	_swipe_tray(gm.tray_rect.position + Vector2(
+			gm.tray_rect.size.x * 0.3, gm.tray_rect.size.y * 0.95),
+			1.4 * gm.tray_slot_w)
+	_check(absf(gm.tray_scroll) < 0.01, "swipe back returns the tray to rest")
 
 	# --- Tap-rotate a placed piece keeps it on the board -----------------
 	# `piece` (square) is still placed at (0, 0) from the drag test above;
@@ -180,6 +216,30 @@ func _run_tests() -> void:
 			"rotation blocked when it would cross a wall")
 	gm.wall_edges = PlacementValidator.walls_from_pairs(gm.level.walls)
 
+
+	# --- Tray momentum, clamping and the grab-to-stop behaviour ----------
+	gm.tray_scroll_velocity = 1200.0
+	var glide_steps := 0
+	while gm.tray_scroll_velocity != 0.0 and glide_steps < 200:
+		gm._integrate_tray_momentum(1.0 / 30.0)
+		glide_steps += 1
+	_check(glide_steps < 200 and gm.tray_scroll_velocity == 0.0,
+			"tray glide dies out from friction")
+	_check(gm.tray_scroll > 0.0, "glide carried the tray sideways")
+	# Running into the content edge stops the glide dead.
+	gm._set_tray_scroll(gm._tray_max_scroll())
+	gm.tray_scroll_velocity = 800.0
+	gm._integrate_tray_momentum(0.1)
+	_check(gm.tray_scroll == gm._tray_max_scroll()
+			and gm.tray_scroll_velocity == 0.0,
+			"glide clamps at the last slot and stops")
+	# Touching the tray stops any glide immediately.
+	gm.tray_scroll_velocity = 800.0
+	var grab_point: Vector2 = gm.tray_rect.position + Vector2(
+			gm.tray_rect.size.x * 0.3, gm.tray_rect.size.y * 0.95)
+	_mouse_event(true, grab_point)
+	_check(gm.tray_scroll_velocity == 0.0, "touching the tray stops the glide")
+	_mouse_event(false, grab_point)
 
 	# --- Win flow replaying the solver-verified solution ----------------
 	gm._reset_level()
@@ -356,6 +416,16 @@ func _tap(p: PuzzlePiece) -> void:
 	var pos := _piece_center(p)
 	_mouse_event(true, pos)
 	_mouse_event(false, pos)
+
+
+func _swipe_tray(start: Vector2, dx: float) -> void:
+	## Simulate a horizontal tray swipe: press, move sideways in steps,
+	## release (no tap, no piece drag).
+	_mouse_event(true, start)
+	var steps := 4
+	for i in range(1, steps + 1):
+		_mouse_move(start + Vector2(dx * i / float(steps), 0.0))
+	_mouse_event(false, start + Vector2(dx, 0.0))
 
 
 func _solution_uses_rotation(lvl: Dictionary) -> bool:
