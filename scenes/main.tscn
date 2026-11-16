@@ -1,9 +1,11 @@
-[gd_scene load_steps=25 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_gm"]
 [ext_resource type="PackedScene" path="res://scenes/puzzle_board.tscn" id="2_board"]
 [ext_resource type="Script" path="res://scripts/tray_backdrop.gd" id="3_tray"]
 [ext_resource type="Texture2D" path="res://assets/Mice/mouse.png" id="4_mouse"]
+[ext_resource type="Script" path="res://scripts/star_display.gd" id="5_star"]
+[ext_resource type="Script" path="res://scripts/level_complete_popup.gd" id="6_popup"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_topbar"]
 bg_color = Color(0.995, 0.95, 0.87, 1)
@@ -28,18 +30,6 @@ corner_radius_bottom_right = 18
 shadow_color = Color(0.42, 0.27, 0.12, 0.14)
 shadow_size = 5
 shadow_offset = Vector2(0, 3)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_win"]
-bg_color = Color(0.995, 0.95, 0.87, 1)
-border_width_bottom = 4
-border_color = Color(0.86, 0.68, 0.44, 1)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_left = 28
-corner_radius_bottom_right = 28
-shadow_color = Color(0.30, 0.18, 0.06, 0.28)
-shadow_size = 18
-shadow_offset = Vector2(0, 8)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
 bg_color = Color(0.98, 0.76, 0.42, 1)
@@ -279,6 +269,84 @@ corner_radius_top_right = 58
 corner_radius_bottom_left = 58
 corner_radius_bottom_right = 58
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_popup"]
+bg_color = Color(0.995, 0.95, 0.87, 1)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0.63, 0.4, 0.22, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_left = 30
+corner_radius_bottom_right = 30
+shadow_color = Color(0.3, 0.16, 0.06, 0.4)
+shadow_size = 18
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats"]
+bg_color = Color(0.98, 0.9, 0.76, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.76, 0.55, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_replay"]
+bg_color = Color(1, 0.95, 0.86, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.85, 0.68, 0.46, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_replay_hover"]
+bg_color = Color(1, 0.98, 0.92, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.78, 0.58, 0.36, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_replay_pressed"]
+bg_color = Color(0.95, 0.87, 0.74, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.78, 0.58, 0.36, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_badge"]
+bg_color = Color(0.995, 0.95, 0.87, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 4
+border_color = Color(0.63, 0.4, 0.22, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_left = 20
+corner_radius_bottom_right = 20
+shadow_color = Color(0.42, 0.27, 0.12, 0.25)
+shadow_size = 4
+shadow_offset = Vector2(0, 3)
+
 [node name="Main" type="Node2D"]
 script = ExtResource("1_gm")
 
@@ -376,70 +444,159 @@ vertical_alignment = 1
 [node name="WinLayer" type="CanvasLayer" parent="."]
 layer = 3
 
-[node name="WinPanel" type="PanelContainer" parent="WinLayer"]
+[node name="WinPopup" type="Control" parent="WinLayer"]
 unique_name_in_owner = true
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -150.0
-offset_right = 200.0
-offset_bottom = 150.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 visible = false
-theme_override_styles/panel = SubResource("StyleBoxFlat_win")
+script = ExtResource("6_popup")
 
-[node name="Margin" type="MarginContainer" parent="WinLayer/WinPanel"]
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 22
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 22
+[node name="Dimmer" type="ColorRect" parent="WinLayer/WinPopup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.16, 0.1, 0.05, 0.45)
 
-[node name="VBox" type="VBoxContainer" parent="WinLayer/WinPanel/Margin"]
-theme_override_constants/separation = 16
+[node name="Center" type="CenterContainer" parent="WinLayer/WinPopup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 
-[node name="WinLabel" type="Label" parent="WinLayer/WinPanel/Margin/VBox"]
+[node name="Panel" type="PanelContainer" parent="WinLayer/WinPopup/Center"]
+custom_minimum_size = Vector2(320, 0)
+theme_override_styles/panel = SubResource("StyleBoxFlat_popup")
+
+[node name="Margin" type="MarginContainer" parent="WinLayer/WinPopup/Center/Panel"]
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin"]
+theme_override_constants/separation = 12
+
+[node name="Ribbon" type="PanelContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox"]
+theme_override_styles/panel = SubResource("StyleBoxFlat_logo_ribbon")
+
+[node name="RibbonMargin" type="MarginContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Ribbon"]
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 5
+
+[node name="WinLabel" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Ribbon/RibbonMargin"]
+unique_name_in_owner = true
+theme_override_colors/font_color = Color(1, 0.94, 0.84, 1)
+theme_override_colors/font_outline_color = Color(0.66, 0.18, 0.3, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 26
+text = "LEVEL COMPLETE!"
+horizontal_alignment = 1
+
+[node name="Stars" type="HBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox"]
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="Star1" type="Control" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stars"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 58)
+script = ExtResource("5_star")
+
+[node name="Star2" type="Control" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stars"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 58)
+script = ExtResource("5_star")
+
+[node name="Star3" type="Control" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stars"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 58)
+script = ExtResource("5_star")
+
+[node name="Stats" type="PanelContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox"]
+theme_override_styles/panel = SubResource("StyleBoxFlat_stats")
+
+[node name="StatsMargin" type="MarginContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats"]
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="StatsBox" type="HBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin"]
+theme_override_constants/separation = 10
+
+[node name="MovesBox" type="VBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox"]
+size_flags_horizontal = 3
+
+[node name="MovesCaption" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/MovesBox"]
+theme_override_colors/font_color = Color(0.52, 0.38, 0.24, 1)
+theme_override_font_sizes/font_size = 14
+text = "MOVES"
+horizontal_alignment = 1
+
+[node name="MovesValue" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/MovesBox"]
 unique_name_in_owner = true
 theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
-theme_override_font_sizes/font_size = 34
-text = "Level Complete!"
+theme_override_font_sizes/font_size = 26
+text = "0"
 horizontal_alignment = 1
 
-[node name="WinSubtitle" type="Label" parent="WinLayer/WinPanel/Margin/VBox"]
-unique_name_in_owner = true
-theme_override_colors/font_color = Color(0.46, 0.32, 0.18, 1)
-theme_override_font_sizes/font_size = 22
-text = "You found all the mice!"
-horizontal_alignment = 1
-
-[node name="Buttons" type="HBoxContainer" parent="WinLayer/WinPanel/Margin/VBox"]
-theme_override_constants/separation = 16
-
-[node name="RestartButton" type="Button" parent="WinLayer/WinPanel/Margin/VBox/Buttons"]
-unique_name_in_owner = true
+[node name="TimeBox" type="VBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox"]
 size_flags_horizontal = 3
+
+[node name="TimeCaption" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/TimeBox"]
+theme_override_colors/font_color = Color(0.52, 0.38, 0.24, 1)
+theme_override_font_sizes/font_size = 14
+text = "TIME"
+horizontal_alignment = 1
+
+[node name="TimeValue" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/TimeBox"]
+unique_name_in_owner = true
+theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
+theme_override_font_sizes/font_size = 26
+text = "00:00"
+horizontal_alignment = 1
+
+[node name="NextButton" type="Button" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.2, 0.35, 0.1, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_easy")
+theme_override_styles/hover = SubResource("StyleBoxFlat_easy_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_easy_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_easy")
+text = "NEXT LEVEL"
+
+[node name="HomeButton" type="Button" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 52)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.45, 0.3, 0.02, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_medium")
+theme_override_styles/hover = SubResource("StyleBoxFlat_medium_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_medium_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_medium")
+text = "HOME"
+
+[node name="RestartButton" type="Button" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
 theme_override_colors/font_hover_color = Color(0.30, 0.19, 0.09, 1)
 theme_override_colors/font_pressed_color = Color(0.30, 0.19, 0.09, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-theme_override_styles/focus = SubResource("StyleBoxFlat_button")
-text = "Restart"
-
-[node name="NextButton" type="Button" parent="WinLayer/WinPanel/Margin/VBox/Buttons"]
-unique_name_in_owner = true
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
-theme_override_colors/font_hover_color = Color(0.30, 0.19, 0.09, 1)
-theme_override_colors/font_pressed_color = Color(0.30, 0.19, 0.09, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
-theme_override_styles/focus = SubResource("StyleBoxFlat_button")
-text = "Next Level"
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_replay")
+theme_override_styles/hover = SubResource("StyleBoxFlat_replay_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_replay_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_replay")
+text = "REPLAY"
 
 [node name="MenuLayer" type="CanvasLayer" parent="."]
 layer = 4
@@ -526,7 +683,29 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_easy")
 theme_override_styles/hover = SubResource("StyleBoxFlat_easy_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_easy_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_easy")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_easy")
+theme_override_colors/font_disabled_color = Color(1, 1, 1, 1)
 text = "EASY"
+
+[node name="EasyBadge" type="PanelContainer" parent="MenuLayer/HomePanel/EasyButton"]
+unique_name_in_owner = true
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -104.0
+offset_top = 28.0
+offset_right = 24.0
+offset_bottom = 90.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_badge")
+
+[node name="Label" type="Label" parent="MenuLayer/HomePanel/EasyButton/EasyBadge"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.42, 0.24, 0.1, 1)
+theme_override_font_sizes/font_size = 26
+text = "LV 1"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="MediumButton" type="Button" parent="MenuLayer/HomePanel"]
 unique_name_in_owner = true
@@ -546,7 +725,29 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_medium")
 theme_override_styles/hover = SubResource("StyleBoxFlat_medium_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_medium_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_medium")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_medium")
+theme_override_colors/font_disabled_color = Color(1, 1, 1, 1)
 text = "MEDIUM"
+
+[node name="MediumBadge" type="PanelContainer" parent="MenuLayer/HomePanel/MediumButton"]
+unique_name_in_owner = true
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -104.0
+offset_top = 28.0
+offset_right = 24.0
+offset_bottom = 90.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_badge")
+
+[node name="Label" type="Label" parent="MenuLayer/HomePanel/MediumButton/MediumBadge"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.42, 0.24, 0.1, 1)
+theme_override_font_sizes/font_size = 26
+text = "LV 2"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="HardButton" type="Button" parent="MenuLayer/HomePanel"]
 unique_name_in_owner = true
@@ -566,7 +767,29 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_hard")
 theme_override_styles/hover = SubResource("StyleBoxFlat_hard_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_hard_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_hard")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_hard")
+theme_override_colors/font_disabled_color = Color(1, 1, 1, 1)
 text = "HARD"
+
+[node name="HardBadge" type="PanelContainer" parent="MenuLayer/HomePanel/HardButton"]
+unique_name_in_owner = true
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -104.0
+offset_top = 28.0
+offset_right = 24.0
+offset_bottom = 90.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_badge")
+
+[node name="Label" type="Label" parent="MenuLayer/HomePanel/HardButton/HardBadge"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.42, 0.24, 0.1, 1)
+theme_override_font_sizes/font_size = 26
+text = "LV 3"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="SuperHardButton" type="Button" parent="MenuLayer/HomePanel"]
 unique_name_in_owner = true
@@ -586,4 +809,26 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_super_hard")
 theme_override_styles/hover = SubResource("StyleBoxFlat_super_hard_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_super_hard_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_super_hard")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_super_hard")
+theme_override_colors/font_disabled_color = Color(1, 1, 1, 1)
 text = "SUPER HARD"
+
+[node name="SuperHardBadge" type="PanelContainer" parent="MenuLayer/HomePanel/SuperHardButton"]
+unique_name_in_owner = true
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -104.0
+offset_top = 28.0
+offset_right = 24.0
+offset_bottom = 90.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_badge")
+
+[node name="Label" type="Label" parent="MenuLayer/HomePanel/SuperHardButton/SuperHardBadge"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.42, 0.24, 0.1, 1)
+theme_override_font_sizes/font_size = 26
+text = "LV 5"
+horizontal_alignment = 1
+vertical_alignment = 1

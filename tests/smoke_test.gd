@@ -40,10 +40,14 @@ func _run_tests() -> void:
 	_check(gm.level.mice.size() == 3, "level 1 has 3 mice")
 	_check(gm.level_label.text == "Level 1 — Kitchen", "level label text")
 	_check(gm.menu_open and gm.home_panel.visible, "home screen shown on boot")
+	_check(_badge_text(0) == "LV 1" and _badge_text(1) == "LV 2"
+			and _badge_text(2) == "LV 3" and _badge_text(3) == "LV 5",
+			"chips show each difficulty's first level on a fresh game")
 	gm.home_panel.get_node("EasyButton").pressed.emit()
 	_check(not gm.home_panel.visible and not gm.menu_open,
 			"difficulty button closes the home screen")
 	_check(gm.level_index == 0, "easy starts at level 1")
+	_check(not gm.win_panel.visible, "popup stays hidden until the level is complete")
 
 	# --- Validator unit checks ------------------------------------------
 	var piece: PuzzlePiece = gm.pieces[0]  # square
@@ -62,6 +66,9 @@ func _run_tests() -> void:
 	var rotated: Array[Vector2i] = piece.definition.get_cells_rotated(1)
 	_check(rotated.size() == 4 and rotated.has(Vector2i(0, 0))
 			and rotated.has(Vector2i(1, 1)), "square rotation keeps shape")
+	_check(gm._star_count(6) == 3 and gm._star_count(9) == 2
+			and gm._star_count(12) == 1,
+			"star thresholds follow the real move count")
 
 	# --- Wall (edge) rules -----------------------------------------------
 	var test_walls := PlacementValidator.walls_from_pairs(
@@ -85,12 +92,14 @@ func _run_tests() -> void:
 	_drag_to(piece, Vector2i(1, 2))
 	_check(piece.placed and piece.board_position == Vector2i(1, 2),
 			"drag placed square at (1, 2)")
+	_check(gm.move_count == 1, "a completed drag counts as one move")
 	_check(piece.global_position == gm.board.cell_to_world(Vector2i(1, 2)),
 			"piece snapped to cell position")
 
 	var plank: PuzzlePiece = _find_piece("plank")
 	_drag_to(plank, Vector2i(1, 2))
 	_check(not plank.placed, "overlapping drop rejected (plank over square)")
+	_check(gm.move_count == 1, "an illegal drop does not count as a move")
 
 	var hook: PuzzlePiece = _find_piece("hook")
 	var old_orientation := hook.orientation
@@ -182,9 +191,20 @@ func _run_tests() -> void:
 	_apply_solution(lvl1)
 	_verify_solution_cells(lvl1)
 	_check(gm.won, "win detected for solver solution (level 1)")
-	_check(gm.win_panel.visible, "win panel shown")
-	_check(gm.win_subtitle.text == "You found all 3 mice!", "win subtitle text")
-	_check(gm.next_button.text == "Next Level", "next button text")
+	_check(gm.win_panel.visible, "completion popup shown")
+	_check(gm.win_panel.moves_value.text == str(gm.move_count),
+			"popup shows the real move count")
+	var shown_time: String = gm.win_panel.time_value.text
+	_check(shown_time.length() == 5 and shown_time[2] == ":",
+			"popup shows an MM:SS completion time")
+	_check(gm.win_panel.stars[0].earned and gm.win_panel.stars[1].earned
+			and gm.win_panel.stars[2].earned,
+			"clean run reveals three stars")
+	_check(not gm.next_button.visible and gm.home_button.visible,
+			"easy group ends with the Home button")
+	gm._refresh_home_badges()
+	_check(_badge_text(0) == "LV 2" and _badge_text(1) == "LV 2",
+			"finishing level 1 advances the easy chip to LV 2")
 
 	# --- Reset -----------------------------------------------------------
 	gm._reset_level()
@@ -202,12 +222,17 @@ func _run_tests() -> void:
 	_check_level_walls(data["levels"][1])
 	_apply_solution(data["levels"][1])
 	_check(gm.won, "win detected for level 2 solution")
+	gm._refresh_home_badges()
+	_check(_badge_text(1) == "LV 3",
+			"finishing level 2 advances the medium chip to LV 3")
 
 	gm._next_level()
 	_check(gm.level.id == "bedroom_003", "level 3 loaded")
 	_check_level_walls(data["levels"][2])
 	_apply_solution(data["levels"][2])
 	_check(gm.won, "win detected for level 3 solution")
+	_check(gm.next_button.visible and not gm.home_button.visible,
+			"hard group continues to the next level")
 
 	# --- Rotation-required levels 4 and 5 ---------------------------------
 	gm._next_level()
@@ -217,6 +242,11 @@ func _run_tests() -> void:
 	var lvl4: Dictionary = data["levels"][3]
 	_apply_solution(lvl4)
 	_check(gm.won, "win detected for level 4 solution")
+	_check(not gm.next_button.visible and gm.home_button.visible,
+			"hard group ends with the Home button")
+	gm._refresh_home_badges()
+	_check(_badge_text(2) == "LV 5",
+			"finishing the hard group advances its chip to LV 5")
 	_check(int(lvl4["min_rotations_required"]) >= 1,
 			"level 4 cannot be won without rotation (solver-verified)")
 	_check(_solution_uses_rotation(lvl4),
@@ -233,14 +263,27 @@ func _run_tests() -> void:
 			"level 5 cannot be won without rotation (solver-verified)")
 	_check(_solution_uses_rotation(lvl5),
 			"level 5 reference solution actually rotates pieces")
-	_check(gm.next_button.text == "Play Again", "last level button text")
+	_check(not gm.next_button.visible and gm.home_button.visible,
+			"last level shows the Home button")
+	gm._refresh_home_badges()
+	_check(_badge_text(3) == "UNAVAIL" and gm.difficulty_buttons[3].disabled,
+			"finishing the last level marks super hard UNAVAIL and disables it")
 
 	gm._next_level()
 	_check(gm.level.id == "kitchen_001", "next wraps back to level 1")
 
 	# --- Home screen difficulty mapping -----------------------------------
+	gm._refresh_home_badges()
+	_check(_badge_text(0) == "LV 2" and _badge_text(1) == "LV 3"
+			and _badge_text(2) == "LV 5" and _badge_text(3) == "UNAVAIL",
+			"home chips reflect the finished game")
 	gm.home_panel.get_node("SuperHardButton").pressed.emit()
-	_check(gm.level_index == 4, "super hard starts at the last level")
+	_check(gm.level_index == 0, "unavailable difficulty loads nothing")
+	gm.home_panel.get_node("EasyButton").pressed.emit()
+	_check(gm.level_index == 1, "finished easy continues at level 2")
+	gm.home_button.pressed.emit()
+	_check(gm.menu_open and gm.home_panel.visible,
+			"home button returns to the difficulty selection")
 
 	print("== %d failure(s) ==" % failures)
 	quit(1 if failures > 0 else 0)
@@ -255,6 +298,11 @@ func _find_piece(id: String) -> PuzzlePiece:
 		if p.definition.id == id:
 			return p
 	return null
+
+
+func _badge_text(i: int) -> String:
+	## Text shown on the i-th difficulty button's progress chip.
+	return (gm.difficulty_badges[i].get_child(0) as Label).text
 
 
 func _check_level_walls(lvl: Dictionary) -> void:

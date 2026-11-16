@@ -23,6 +23,8 @@ const DIFFICULTY_LEVELS := [0, 1, 2, 4]
 ## and scaled to the real canvas (project stretch/scale makes the canvas
 ## narrower than the 720 px design), so it keeps the reference proportions.
 const MENU_DESIGN_WIDTH := 720.0
+## Extra drags allowed before the star rating drops from three to two.
+const STAR_2_EXTRA_MOVES := 3
 
 @onready var board: BoardController = %Board
 @onready var pieces_root: Node2D = %Pieces
@@ -30,10 +32,15 @@ const MENU_DESIGN_WIDTH := 720.0
 @onready var level_label: Label = %LevelLabel
 @onready var goal_label: Label = %GoalLabel
 @onready var reset_button: Button = %ResetButton
-@onready var win_panel: Control = %WinPanel
-@onready var win_subtitle: Label = %WinSubtitle
+@onready var win_panel = %WinPopup
 @onready var next_button: Button = %NextButton
+@onready var home_button: Button = %HomeButton
 @onready var home_panel: Control = %HomePanel
+## Difficulty buttons and their progress chips, in DIFFICULTY_LEVELS order.
+@onready var difficulty_buttons: Array[Button] = [
+	%EasyButton, %MediumButton, %HardButton, %SuperHardButton]
+@onready var difficulty_badges: Array[PanelContainer] = [
+	%EasyBadge, %MediumBadge, %HardBadge, %SuperHardBadge]
 
 var level: LevelDefinition
 var level_index := 0
@@ -54,6 +61,13 @@ var moved_far := false
 var won := false
 ## True while the home/title screen is covering the game; blocks gameplay input.
 var menu_open := true
+## Completed legal drops this level (rejected drops and tap-rotations are
+## free) and when the level became playable; the completion popup reports both.
+var move_count := 0
+var level_start_msec := 0
+## Global level indices (0-based) completed at least once this session;
+## drives the home-screen progress chips (reset when the app restarts).
+var completed_levels := {}
 
 
 func _ready() -> void:
@@ -61,6 +75,7 @@ func _ready() -> void:
 	reset_button.pressed.connect(_reset_level)
 	%RestartButton.pressed.connect(_reset_level)
 	next_button.pressed.connect(_next_level)
+	home_button.pressed.connect(_on_home_pressed)
 	%EasyButton.pressed.connect(_on_difficulty_selected.bind(0))
 	%MediumButton.pressed.connect(_on_difficulty_selected.bind(1))
 	%HardButton.pressed.connect(_on_difficulty_selected.bind(2))
@@ -73,14 +88,37 @@ func _show_home() -> void:
 	## Cover the game with the title/difficulty screen and swallow input.
 	menu_open = true
 	home_panel.visible = true
+	_refresh_home_badges()
+
+
+func _refresh_home_badges() -> void:
+	## Update each difficulty button's progress chip: the next level it will
+	## load, or a greyed UNAVAIL (with the button disabled) when none remains.
+	for i in DIFFICULTY_LEVELS.size():
+		var next := _next_level_for_difficulty(i)
+		var available := next >= 0
+		var badge: PanelContainer = difficulty_badges[i]
+		var label: Label = badge.get_child(0)
+		label.text = "LV %d" % next if available else "UNAVAIL"
+		label.add_theme_font_size_override("font_size", 26 if available else 20)
+		badge.modulate = Color.WHITE if available else Color(0.65, 0.65, 0.68)
+		difficulty_buttons[i].disabled = not available
+
+
+func _on_home_pressed() -> void:
+	## Completion popup's Home button: back to the difficulty selection.
+	win_panel.visible = false
+	_show_home()
 
 
 func _on_difficulty_selected(button_index: int) -> void:
-	## Difficulty buttons are start points: they load that level directly.
-	var start_level: int = DIFFICULTY_LEVELS[button_index]
+	## Difficulty buttons continue at the level shown on their progress chip.
+	var next := _next_level_for_difficulty(button_index)
+	if next < 0:
+		return  # UNAVAIL: the whole game is finished
 	menu_open = false
 	home_panel.visible = false
-	_load_level(start_level)
+	_load_level(next - 1)
 
 
 func _load_level(index: int) -> void:
@@ -105,6 +143,8 @@ func _load_level(index: int) -> void:
 	level_label.text = "Level %d — %s" % [index + 1, level.get_room_title()]
 	goal_label.text = "FIND ALL %d MICE" % level.mice.size()
 	win_panel.visible = false
+	move_count = 0
+	level_start_msec = Time.get_ticks_msec()
 	board.clear_preview()
 	_layout()
 
@@ -193,7 +233,8 @@ func _apply_tray_slot(p: PuzzlePiece) -> void:
 # ---------------------------------------------------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
-	if menu_open:
+	# The home menu and the completion popup are modal: ignore board input.
+	if menu_open or won:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -267,7 +308,9 @@ func _on_release(world_point: Vector2) -> void:
 			piece.z_index = Z_PLACED
 			piece.global_position = board.cell_to_world(piece.board_position)
 	else:
-		_try_place(piece)
+		# Only a legal drop counts as a move; rejected drags are free.
+		if _try_place(piece):
+			move_count += 1
 	board.clear_preview()
 	_check_win()
 
@@ -295,7 +338,8 @@ func _rotate_piece(piece: PuzzlePiece) -> void:
 		piece.set_orientation(new_orientation)
 
 
-func _try_place(piece: PuzzlePiece) -> void:
+func _try_place(piece: PuzzlePiece) -> bool:
+	## True when the drop was legal and the piece landed on the board.
 	var cell := board.world_to_cell_snapped(piece.global_position)
 	var occupied := PlacementValidator.get_occupied_cells(pieces, piece)
 	if PlacementValidator.is_placement_legal(piece.definition, piece.orientation,
@@ -305,10 +349,11 @@ func _try_place(piece: PuzzlePiece) -> void:
 		piece.z_index = Z_PLACED
 		piece.scale = Vector2(board_scale, board_scale)
 		piece.global_position = board.cell_to_world(cell)
-	else:
-		# The drop was illegal: the piece returns to the tray un-placed.
-		piece.placed = false
-		_apply_tray_slot(piece)
+		return true
+	# The drop was illegal: the piece returns to the tray un-placed.
+	piece.placed = false
+	_apply_tray_slot(piece)
+	return false
 
 
 func _update_preview() -> void:
@@ -337,17 +382,83 @@ func _check_win() -> void:
 	if PlacementValidator.is_win(pieces, pieces.size(),
 			level.board_size, level.mice):
 		won = true
+		completed_levels[level_index] = true
 		board.clear_preview()
-		var revealed := PlacementValidator.get_revealed_mice(pieces, level.mice)
-		win_subtitle.text = "You found all %d mice!" % revealed.size()
-		var is_last_level := level_index >= LevelLoader.level_count() - 1
-		next_button.text = "Play Again" if is_last_level else "Next Level"
-		win_panel.visible = true
+		var elapsed_msec: int = Time.get_ticks_msec() - level_start_msec
+		win_panel.show_popup(_star_count(move_count), move_count,
+				_format_time(elapsed_msec), not _has_next_level())
+
+
+# ---------------------------------------------------------------------------
+# Difficulty groups, star rating and level results
+# ---------------------------------------------------------------------------
+
+func _difficulty_index_for_level(index: int) -> int:
+	## Difficulty whose group contains `index` (the last start at or before it).
+	var diff := 0
+	for i in DIFFICULTY_LEVELS.size():
+		if index >= DIFFICULTY_LEVELS[i]:
+			diff = i
+	return diff
+
+
+func _difficulty_end_level() -> int:
+	## Last level index that still belongs to the current difficulty group.
+	return _difficulty_group_end(_difficulty_index_for_level(level_index))
+
+
+func _difficulty_group_end(diff_index: int) -> int:
+	## Last level index that still belongs to difficulty group `diff_index`.
+	if diff_index + 1 < DIFFICULTY_LEVELS.size():
+		return DIFFICULTY_LEVELS[diff_index + 1] - 1
+	return LevelLoader.level_count() - 1
+
+
+func _next_level_for_difficulty(diff_index: int) -> int:
+	## 1-based level number shown on the difficulty button's progress chip:
+	## the first uncompleted level counting from the group's start; once the
+	## whole group is finished, the next global level. -1 when no level
+	## remains (game finished) — displayed as UNAVAIL.
+	var next: int = DIFFICULTY_LEVELS[diff_index]
+	var end := _difficulty_group_end(diff_index)
+	while next <= end and completed_levels.has(next):
+		next += 1
+	if next > end:
+		next = end + 1
+	if next >= LevelLoader.level_count():
+		return -1
+	return next + 1
+
+
+func _has_next_level() -> bool:
+	## True while the next stage still belongs to the current difficulty.
+	return level_index + 1 <= _difficulty_end_level()
+
+
+func _star_count(moves: int) -> int:
+	## Three stars for a clean run (one drop per piece), two with a few extra
+	## attempts, one otherwise.
+	var par: int = maxi(pieces.size(), 1)
+	if moves <= par:
+		return 3
+	if moves <= par + STAR_2_EXTRA_MOVES:
+		return 2
+	return 1
+
+
+func _format_time(elapsed_msec: int) -> String:
+	## Level results show MM:SS (minutes capped at 99).
+	var total_sec: int = maxi(elapsed_msec, 0) / 1000
+	var mins: int = mini(total_sec / 60, 99)
+	var secs: int = total_sec % 60
+	return "%02d:%02d" % [mins, secs]
 
 
 func _reset_level() -> void:
 	won = false
 	dragging = null
+	move_count = 0
+	level_start_msec = Time.get_ticks_msec()
 	win_panel.visible = false
 	board.clear_preview()
 	for p in pieces:
