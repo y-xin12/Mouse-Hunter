@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_gm"]
 [ext_resource type="PackedScene" path="res://scenes/puzzle_board.tscn" id="2_board"]
 [ext_resource type="Script" path="res://scripts/tray_backdrop.gd" id="3_tray"]
+[ext_resource type="Texture2D" path="res://assets/Mice/mouse.png" id="4_mouse"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_topbar"]
 bg_color = Color(0.995, 0.95, 0.87, 1)
@@ -83,6 +84,201 @@ corner_radius_bottom_left = 16
 corner_radius_bottom_right = 16
 
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_logo_wood"]
+bg_color = Color(0.63, 0.4, 0.22, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 6
+border_color = Color(0.45, 0.26, 0.12, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_left = 26
+corner_radius_bottom_right = 26
+shadow_color = Color(0.3, 0.16, 0.06, 0.35)
+shadow_size = 14
+shadow_offset = Vector2(0, 7)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_logo_ribbon"]
+bg_color = Color(0.95, 0.42, 0.55, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 4
+border_color = Color(0.74, 0.22, 0.35, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_left = 16
+corner_radius_bottom_right = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_easy"]
+bg_color = Color(0.47, 0.79, 0.29, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+shadow_color = Color(0.15, 0.35, 0.05, 0.35)
+shadow_size = 8
+shadow_offset = Vector2(0, 7)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_easy_hover"]
+bg_color = Color(0.55, 0.86, 0.36, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+shadow_color = Color(0.15, 0.35, 0.05, 0.35)
+shadow_size = 10
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_easy_pressed"]
+bg_color = Color(0.4, 0.7, 0.22, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(0.93, 0.98, 0.88, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_medium"]
+bg_color = Color(1, 0.78, 0.24, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+shadow_color = Color(0.62, 0.4, 0.02, 0.35)
+shadow_size = 8
+shadow_offset = Vector2(0, 7)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_medium_hover"]
+bg_color = Color(1, 0.85, 0.4, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+shadow_color = Color(0.62, 0.4, 0.02, 0.35)
+shadow_size = 10
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_medium_pressed"]
+bg_color = Color(0.93, 0.68, 0.14, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 0.97, 0.88, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hard"]
+bg_color = Color(1, 0.6, 0.24, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+shadow_color = Color(0.6, 0.28, 0.02, 0.35)
+shadow_size = 8
+shadow_offset = Vector2(0, 7)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hard_hover"]
+bg_color = Color(1, 0.68, 0.34, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+shadow_color = Color(0.6, 0.28, 0.02, 0.35)
+shadow_size = 10
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hard_pressed"]
+bg_color = Color(0.93, 0.52, 0.16, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 0.95, 0.88, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_super_hard"]
+bg_color = Color(0.96, 0.36, 0.53, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+shadow_color = Color(0.55, 0.1, 0.22, 0.35)
+shadow_size = 8
+shadow_offset = Vector2(0, 7)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_super_hard_hover"]
+bg_color = Color(0.99, 0.45, 0.61, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+shadow_color = Color(0.55, 0.1, 0.22, 0.35)
+shadow_size = 10
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_super_hard_pressed"]
+bg_color = Color(0.87, 0.28, 0.44, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 0.92, 0.95, 1)
+corner_radius_top_left = 58
+corner_radius_top_right = 58
+corner_radius_bottom_left = 58
+corner_radius_bottom_right = 58
+
 [node name="Main" type="Node2D"]
 script = ExtResource("1_gm")
 
@@ -93,11 +289,15 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 script = ExtResource("3_tray")
 
-[node name="Pieces" type="Node2D" parent="."]
+[node name="PiecesLayer" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="Pieces" type="Node2D" parent="PiecesLayer"]
 unique_name_in_owner = true
 
 [node name="HUD" type="CanvasLayer" parent="."]
 unique_name_in_owner = true
+layer = 1
 
 [node name="TopBar" type="PanelContainer" parent="HUD"]
 unique_name_in_owner = true
@@ -173,7 +373,10 @@ text = "FIND ALL 3 MICE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="WinPanel" type="PanelContainer" parent="HUD"]
+[node name="WinLayer" type="CanvasLayer" parent="."]
+layer = 3
+
+[node name="WinPanel" type="PanelContainer" parent="WinLayer"]
 unique_name_in_owner = true
 anchor_left = 0.5
 anchor_top = 0.5
@@ -186,33 +389,33 @@ offset_bottom = 150.0
 visible = false
 theme_override_styles/panel = SubResource("StyleBoxFlat_win")
 
-[node name="Margin" type="MarginContainer" parent="HUD/WinPanel"]
+[node name="Margin" type="MarginContainer" parent="WinLayer/WinPanel"]
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 22
 
-[node name="VBox" type="VBoxContainer" parent="HUD/WinPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="WinLayer/WinPanel/Margin"]
 theme_override_constants/separation = 16
 
-[node name="WinLabel" type="Label" parent="HUD/WinPanel/Margin/VBox"]
+[node name="WinLabel" type="Label" parent="WinLayer/WinPanel/Margin/VBox"]
 unique_name_in_owner = true
 theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
 theme_override_font_sizes/font_size = 34
 text = "Level Complete!"
 horizontal_alignment = 1
 
-[node name="WinSubtitle" type="Label" parent="HUD/WinPanel/Margin/VBox"]
+[node name="WinSubtitle" type="Label" parent="WinLayer/WinPanel/Margin/VBox"]
 unique_name_in_owner = true
 theme_override_colors/font_color = Color(0.46, 0.32, 0.18, 1)
 theme_override_font_sizes/font_size = 22
 text = "You found all the mice!"
 horizontal_alignment = 1
 
-[node name="Buttons" type="HBoxContainer" parent="HUD/WinPanel/Margin/VBox"]
+[node name="Buttons" type="HBoxContainer" parent="WinLayer/WinPanel/Margin/VBox"]
 theme_override_constants/separation = 16
 
-[node name="RestartButton" type="Button" parent="HUD/WinPanel/Margin/VBox/Buttons"]
+[node name="RestartButton" type="Button" parent="WinLayer/WinPanel/Margin/VBox/Buttons"]
 unique_name_in_owner = true
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
@@ -225,7 +428,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_button")
 text = "Restart"
 
-[node name="NextButton" type="Button" parent="HUD/WinPanel/Margin/VBox/Buttons"]
+[node name="NextButton" type="Button" parent="WinLayer/WinPanel/Margin/VBox/Buttons"]
 unique_name_in_owner = true
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
@@ -237,3 +440,150 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_button")
 text = "Next Level"
+
+[node name="MenuLayer" type="CanvasLayer" parent="."]
+layer = 4
+
+[node name="HomePanel" type="Control" parent="MenuLayer"]
+unique_name_in_owner = true
+
+[node name="Background" type="ColorRect" parent="MenuLayer/HomePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.99, 0.94, 0.86, 1)
+
+[node name="LogoPanel" type="PanelContainer" parent="MenuLayer/HomePanel"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -235.0
+offset_top = 40.0
+offset_right = 235.0
+offset_bottom = 220.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_logo_wood")
+
+[node name="LogoMargin" type="MarginContainer" parent="MenuLayer/HomePanel/LogoPanel"]
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="LogoVBox" type="VBoxContainer" parent="MenuLayer/HomePanel/LogoPanel/LogoMargin"]
+theme_override_constants/separation = -2
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="MenuLayer/HomePanel/LogoPanel/LogoMargin/LogoVBox"]
+theme_override_colors/font_color = Color(1, 0.8, 0.16, 1)
+theme_override_colors/font_outline_color = Color(0.99, 0.94, 0.86, 1)
+theme_override_constants/outline_size = 14
+theme_override_font_sizes/font_size = 58
+text = "MOUSE"
+horizontal_alignment = 1
+
+[node name="Ribbon" type="PanelContainer" parent="MenuLayer/HomePanel/LogoPanel/LogoMargin/LogoVBox"]
+theme_override_styles/panel = SubResource("StyleBoxFlat_logo_ribbon")
+
+[node name="RibbonMargin" type="MarginContainer" parent="MenuLayer/HomePanel/LogoPanel/LogoMargin/LogoVBox/Ribbon"]
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 4
+
+[node name="SubtitleLabel" type="Label" parent="MenuLayer/HomePanel/LogoPanel/LogoMargin/LogoVBox/Ribbon/RibbonMargin"]
+theme_override_colors/font_color = Color(1, 0.94, 0.84, 1)
+theme_override_colors/font_outline_color = Color(0.66, 0.18, 0.3, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 34
+text = "HUNTER"
+horizontal_alignment = 1
+
+[node name="MouseArt" type="TextureRect" parent="MenuLayer/HomePanel"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -225.0
+offset_top = 220.0
+offset_right = 225.0
+offset_bottom = 556.0
+mouse_filter = 2
+texture = ExtResource("4_mouse")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="EasyButton" type="Button" parent="MenuLayer/HomePanel"]
+unique_name_in_owner = true
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -228.0
+offset_top = 545.0
+offset_right = 228.0
+offset_bottom = 663.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.2, 0.35, 0.1, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 44
+theme_override_styles/normal = SubResource("StyleBoxFlat_easy")
+theme_override_styles/hover = SubResource("StyleBoxFlat_easy_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_easy_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_easy")
+text = "EASY"
+
+[node name="MediumButton" type="Button" parent="MenuLayer/HomePanel"]
+unique_name_in_owner = true
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -228.0
+offset_top = 686.0
+offset_right = 228.0
+offset_bottom = 804.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.45, 0.3, 0.02, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 44
+theme_override_styles/normal = SubResource("StyleBoxFlat_medium")
+theme_override_styles/hover = SubResource("StyleBoxFlat_medium_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_medium_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_medium")
+text = "MEDIUM"
+
+[node name="HardButton" type="Button" parent="MenuLayer/HomePanel"]
+unique_name_in_owner = true
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -228.0
+offset_top = 827.0
+offset_right = 228.0
+offset_bottom = 945.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.45, 0.2, 0.02, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 44
+theme_override_styles/normal = SubResource("StyleBoxFlat_hard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hard_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hard_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_hard")
+text = "HARD"
+
+[node name="SuperHardButton" type="Button" parent="MenuLayer/HomePanel"]
+unique_name_in_owner = true
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -228.0
+offset_top = 968.0
+offset_right = 228.0
+offset_bottom = 1086.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.4, 0.1, 0.18, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 44
+theme_override_styles/normal = SubResource("StyleBoxFlat_super_hard")
+theme_override_styles/hover = SubResource("StyleBoxFlat_super_hard_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_super_hard_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_super_hard")
+text = "SUPER HARD"

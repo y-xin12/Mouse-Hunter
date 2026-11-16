@@ -16,6 +16,13 @@ const BOARD_ZONE_RATIO := 0.7
 const SCREEN_MARGIN := 8.0
 const Z_PLACED := 5
 const Z_DRAGGING := 100
+## Starting level for each home-screen difficulty button (Easy, Medium, Hard,
+## Super Hard). Level 4 (index 3) is reached by playing on from Hard.
+const DIFFICULTY_LEVELS := [0, 1, 2, 4]
+## Width of the home-screen design space. The menu is authored at this width
+## and scaled to the real canvas (project stretch/scale makes the canvas
+## narrower than the 720 px design), so it keeps the reference proportions.
+const MENU_DESIGN_WIDTH := 720.0
 
 @onready var board: BoardController = %Board
 @onready var pieces_root: Node2D = %Pieces
@@ -26,6 +33,7 @@ const Z_DRAGGING := 100
 @onready var win_panel: Control = %WinPanel
 @onready var win_subtitle: Label = %WinSubtitle
 @onready var next_button: Button = %NextButton
+@onready var home_panel: Control = %HomePanel
 
 var level: LevelDefinition
 var level_index := 0
@@ -44,6 +52,8 @@ var press_position := Vector2.ZERO
 var press_time := 0.0
 var moved_far := false
 var won := false
+## True while the home/title screen is covering the game; blocks gameplay input.
+var menu_open := true
 
 
 func _ready() -> void:
@@ -51,7 +61,26 @@ func _ready() -> void:
 	reset_button.pressed.connect(_reset_level)
 	%RestartButton.pressed.connect(_reset_level)
 	next_button.pressed.connect(_next_level)
+	%EasyButton.pressed.connect(_on_difficulty_selected.bind(0))
+	%MediumButton.pressed.connect(_on_difficulty_selected.bind(1))
+	%HardButton.pressed.connect(_on_difficulty_selected.bind(2))
+	%SuperHardButton.pressed.connect(_on_difficulty_selected.bind(3))
 	_load_level(0)
+	_show_home()
+
+
+func _show_home() -> void:
+	## Cover the game with the title/difficulty screen and swallow input.
+	menu_open = true
+	home_panel.visible = true
+
+
+func _on_difficulty_selected(button_index: int) -> void:
+	## Difficulty buttons are start points: they load that level directly.
+	var start_level: int = DIFFICULTY_LEVELS[button_index]
+	menu_open = false
+	home_panel.visible = false
+	_load_level(start_level)
 
 
 func _load_level(index: int) -> void:
@@ -111,7 +140,18 @@ func _layout() -> void:
 			Vector2(usable.size.x, max(usable.end.y - tray_top - 4.0, 40.0)))
 	if tray_backdrop != null:
 		tray_backdrop.set_rect(tray_rect)
+	_layout_home(vp_x, vp_y)
 	_refresh_all_pieces()
+
+
+func _layout_home(vp_x: float, vp_y: float) -> void:
+	## Scale the 720 px-wide home design to the real canvas and stretch its
+	## background to the full canvas height so it always covers the screen.
+	if home_panel == null:
+		return
+	var menu_scale: float = vp_x / MENU_DESIGN_WIDTH
+	home_panel.scale = Vector2(menu_scale, menu_scale)
+	home_panel.size = Vector2(MENU_DESIGN_WIDTH, vp_y / menu_scale)
 
 
 func _refresh_all_pieces() -> void:
@@ -153,6 +193,8 @@ func _apply_tray_slot(p: PuzzlePiece) -> void:
 # ---------------------------------------------------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
+	if menu_open:
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			_on_press(event.position)

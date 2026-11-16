@@ -19,6 +19,9 @@ extends SceneTree
 
 const BASE_SIZE := Vector2(720, 1280)
 const TOLERANCE := 0.6
+## project.godot's display/window/stretch/scale (content_scale_factor). The
+## stretch settings are mirrored onto the root window manually below.
+const STRETCH_SCALE := 1.89
 
 const RESOLUTIONS := [
 	Vector2i(720, 1280),   # base portrait phone (project design size)
@@ -65,6 +68,7 @@ func _prepare_window() -> void:
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
 	root.content_scale_size = BASE_SIZE
+	root.content_scale_factor = STRETCH_SCALE
 
 
 func _set_window_size(sz: Vector2i) -> bool:
@@ -88,7 +92,8 @@ func _test_resolution(res: Vector2i) -> void:
 	_check(ok, "window resized to %d x %d" % [res.x, res.y])
 
 	# canvas_items + expand math: uniform scale, canvas = window / scale.
-	var dev_scale: float = min(res.x / BASE_SIZE.x, res.y / BASE_SIZE.y)
+	var dev_scale: float = min(res.x / BASE_SIZE.x, res.y / BASE_SIZE.y) \
+			* STRETCH_SCALE
 	var expected_canvas: Vector2 = Vector2(res) / dev_scale
 	var canvas: Vector2 = root.get_visible_rect().size
 	_check(canvas.distance_to(expected_canvas) < TOLERANCE,
@@ -105,6 +110,7 @@ func _test_resolution(res: Vector2i) -> void:
 	await process_frame
 	await process_frame
 	gm = main
+	gm._on_difficulty_selected(0)
 	_layout_checks(canvas)
 	_input_checks()
 	main.queue_free()
@@ -195,6 +201,7 @@ func _test_live_resize() -> void:
 	await process_frame
 	await process_frame
 	gm = main
+	gm._on_difficulty_selected(0)
 	var small_cell: float = gm.board.cell_px
 
 	await _set_window_size(Vector2i(1440, 2960))

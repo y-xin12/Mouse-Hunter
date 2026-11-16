@@ -39,6 +39,11 @@ func _run_tests() -> void:
 	_check(LevelLoader.level_count() == 5, "5 levels discovered")
 	_check(gm.level.mice.size() == 3, "level 1 has 3 mice")
 	_check(gm.level_label.text == "Level 1 — Kitchen", "level label text")
+	_check(gm.menu_open and gm.home_panel.visible, "home screen shown on boot")
+	gm.home_panel.get_node("EasyButton").pressed.emit()
+	_check(not gm.home_panel.visible and not gm.menu_open,
+			"difficulty button closes the home screen")
+	_check(gm.level_index == 0, "easy starts at level 1")
 
 	# --- Validator unit checks ------------------------------------------
 	var piece: PuzzlePiece = gm.pieces[0]  # square
@@ -232,6 +237,10 @@ func _run_tests() -> void:
 
 	gm._next_level()
 	_check(gm.level.id == "kitchen_001", "next wraps back to level 1")
+
+	# --- Home screen difficulty mapping -----------------------------------
+	gm.home_panel.get_node("SuperHardButton").pressed.emit()
+	_check(gm.level_index == 4, "super hard starts at the last level")
 
 	print("== %d failure(s) ==" % failures)
 	quit(1 if failures > 0 else 0)
