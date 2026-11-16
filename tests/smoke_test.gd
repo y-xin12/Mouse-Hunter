@@ -58,15 +58,33 @@ func _run_tests() -> void:
 	_check(rotated.size() == 4 and rotated.has(Vector2i(0, 0))
 			and rotated.has(Vector2i(1, 1)), "square rotation keeps shape")
 
+	# --- Wall (edge) rules -----------------------------------------------
+	var test_walls := PlacementValidator.walls_from_pairs(
+			[Vector2i(0, 0), Vector2i(1, 0)])
+	var span_right: Array[Vector2i] = [Vector2i(0, 0), Vector2i(1, 0)]
+	var span_down: Array[Vector2i] = [Vector2i(0, 0), Vector2i(0, 1)]
+	_check(PlacementValidator.crosses_no_wall(span_down, test_walls),
+			"cells not crossing a wall pass")
+	_check(not PlacementValidator.crosses_no_wall(span_right, test_walls),
+			"cells crossing a wall are rejected")
+	_check(PlacementValidator.is_placement_legal(piece.definition, 0,
+			Vector2i(0, 0), Vector2i(4, 6), {}),
+			"square placement legal without walls")
+	_check(not PlacementValidator.is_placement_legal(piece.definition, 0,
+			Vector2i(0, 0), Vector2i(4, 6), {}, test_walls),
+			"square cannot be placed across a walled edge")
+
 	# --- Drag & drop via simulated input events ------------------------
-	_drag_to(piece, Vector2i(0, 0))
-	_check(piece.placed and piece.board_position == Vector2i(0, 0),
-			"drag placed square at (0, 0)")
-	_check(piece.global_position == gm.board.cell_to_world(Vector2i(0, 0)),
+	# (1, 2) is the square's spot in the level 1 reference tiling, so the
+	# placement stays legal with the level's wall hints active.
+	_drag_to(piece, Vector2i(1, 2))
+	_check(piece.placed and piece.board_position == Vector2i(1, 2),
+			"drag placed square at (1, 2)")
+	_check(piece.global_position == gm.board.cell_to_world(Vector2i(1, 2)),
 			"piece snapped to cell position")
 
 	var plank: PuzzlePiece = _find_piece("plank")
-	_drag_to(plank, Vector2i(0, 0))
+	_drag_to(plank, Vector2i(1, 2))
 	_check(not plank.placed, "overlapping drop rejected (plank over square)")
 
 	var hook: PuzzlePiece = _find_piece("hook")
@@ -82,12 +100,37 @@ func _run_tests() -> void:
 	# rotation is legal and must not send the piece back to the tray.
 	var square_orientation := piece.orientation
 	_tap(piece)
-	_check(piece.placed and piece.board_position == Vector2i(0, 0),
+	_check(piece.placed and piece.board_position == Vector2i(1, 2),
 			"tap keeps placed piece on the board")
 	_check(piece.orientation == posmod(square_orientation + 1, 4),
 			"tap rotates placed piece in place")
-	_check(piece.global_position == gm.board.cell_to_world(Vector2i(0, 0)),
+	_check(piece.global_position == gm.board.cell_to_world(Vector2i(1, 2)),
 			"tapped placed piece stays snapped to its cell")
+
+	# --- Walls block placement across them --------------------------------
+	# Walls are edges between cells; no piece may be placed across one.
+	# Find a level-1 wall whose lower cell still fits the 2x2 square.
+	var wall_a := Vector2i(-1, -1)
+	var wall_b := Vector2i(-1, -1)
+	for i in range(0, gm.level.walls.size(), 2):
+		var wa: Vector2i = gm.level.walls[i]
+		var wb: Vector2i = gm.level.walls[i + 1]
+		var lo := Vector2i(mini(wa.x, wb.x), mini(wa.y, wb.y))
+		if lo.x + 1 < gm.level.board_size.x \
+				and lo.y + 1 < gm.level.board_size.y:
+			wall_a = wa
+			wall_b = wb
+			break
+	_check(wall_a.x >= 0, "level 1 defines walls the square can span")
+	gm._reset_level()
+	var span_cell := Vector2i(mini(wall_a.x, wall_b.x),
+			mini(wall_a.y, wall_b.y))
+	_drag_to(piece, span_cell)
+	_check(not piece.placed, "drop spanning a walled edge is rejected")
+	gm.wall_edges = {}
+	_drag_to(piece, span_cell)
+	_check(piece.placed, "same drop is legal without walls")
+	gm.wall_edges = PlacementValidator.walls_from_pairs(gm.level.walls)
 
 	# --- Illegal rotation of a placed piece is blocked ------------------
 	gm._reset_level()
@@ -109,12 +152,27 @@ func _run_tests() -> void:
 	_check(corner.orientation == 0,
 			"tap does not rotate placed piece when illegal")
 
+	# --- Rotation that would cross a wall is blocked ---------------------
+	gm._reset_level()
+	var wall_plank: PuzzlePiece = _find_piece("plank")
+	wall_plank.placed = true
+	wall_plank.set_orientation(0)
+	wall_plank.board_position = Vector2i(0, 0)
+	gm._refresh_all_pieces()
+	gm.wall_edges = PlacementValidator.walls_from_pairs(
+			[Vector2i(0, 0), Vector2i(1, 0)])
+	gm._rotate_piece(wall_plank)
+	_check(wall_plank.orientation == 0,
+			"rotation blocked when it would cross a wall")
+	gm.wall_edges = PlacementValidator.walls_from_pairs(gm.level.walls)
+
 
 	# --- Win flow replaying the solver-verified solution ----------------
 	gm._reset_level()
 	var data: Dictionary = JSON.parse_string(
 			FileAccess.get_file_as_string(SOLUTIONS_PATH))
 	_check(not data.is_empty(), "solutions.json parsed")
+	_check_level_walls(data["levels"][0])
 	var lvl1: Dictionary = data["levels"][0]
 	_apply_solution(lvl1)
 	_verify_solution_cells(lvl1)
@@ -136,11 +194,13 @@ func _run_tests() -> void:
 	_check(gm.level.id == "living_room_002", "next level loaded")
 	_check(gm.level.mice.size() == 5, "level 2 has 5 mice")
 	_check(gm.level_label.text == "Level 2 — Living Room", "level 2 label")
+	_check_level_walls(data["levels"][1])
 	_apply_solution(data["levels"][1])
 	_check(gm.won, "win detected for level 2 solution")
 
 	gm._next_level()
 	_check(gm.level.id == "bedroom_003", "level 3 loaded")
+	_check_level_walls(data["levels"][2])
 	_apply_solution(data["levels"][2])
 	_check(gm.won, "win detected for level 3 solution")
 
@@ -148,6 +208,7 @@ func _run_tests() -> void:
 	gm._next_level()
 	_check(gm.level.id == "bathroom_004", "level 4 loaded")
 	_check(gm.level_label.text == "Level 4 — Bathroom", "level 4 label")
+	_check_level_walls(data["levels"][3])
 	var lvl4: Dictionary = data["levels"][3]
 	_apply_solution(lvl4)
 	_check(gm.won, "win detected for level 4 solution")
@@ -159,6 +220,7 @@ func _run_tests() -> void:
 	gm._next_level()
 	_check(gm.level.id == "attic_005", "level 5 loaded")
 	_check(gm.level.mice.size() == 6, "level 5 has 6 mice")
+	_check_level_walls(data["levels"][4])
 	var lvl5: Dictionary = data["levels"][4]
 	_apply_solution(lvl5)
 	_check(gm.won, "win detected for level 5 solution")
@@ -184,6 +246,20 @@ func _find_piece(id: String) -> PuzzlePiece:
 		if p.definition.id == id:
 			return p
 	return null
+
+
+func _check_level_walls(lvl: Dictionary) -> void:
+	## The level file's wall hints must match the solver-designed walls.
+	var expected: Array = lvl.get("walls", [])
+	var level_walls: Array[Vector2i] = gm.level.walls
+	var walls_match: bool = level_walls.size() == expected.size()
+	if walls_match:
+		for i in expected.size():
+			var cell: Vector2i = level_walls[i]
+			if cell.x != int(expected[i][0]) or cell.y != int(expected[i][1]):
+				walls_match = false
+				break
+	_check(walls_match, "level walls match solver design for '%s'" % lvl["id"])
 
 
 func _piece_center(p: PuzzlePiece) -> Vector2:

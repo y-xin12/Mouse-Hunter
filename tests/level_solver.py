@@ -11,6 +11,11 @@ reports how many solutions satisfy each level (solvability check). Levels 4-5
 are designed so every satisfying tiling needs at least one piece rotated --
 they cannot be won without using the rotation mechanic.
 
+Each level also receives wall hints: edges between cells that no single piece
+may cross (walls never occupy cells and never change the tiling area). Walls
+are picked from the reference tiling's internal boundaries, mouse-adjacent
+edges first, so every hint stays truthful and the solution stays valid.
+
 Run:  python3 tests/level_solver.py
 Writes: tests/solutions.json (used by tests/smoke_test.gd)
 """
@@ -118,9 +123,68 @@ def enumerate_tilings():
     return solutions
 
 
-def count_solutions_for_mice(tilings, mice):
+def count_solutions_for_mice(tilings, mice, walls=None):
     mice = set(mice)
-    return sum(1 for t in tilings if mice.issubset(t["openings"]))
+    count = 0
+    for t in tilings:
+        if not mice.issubset(t["openings"]):
+            continue
+        if walls and not _tiling_satisfies_walls(t, walls):
+            continue
+        count += 1
+    return count
+
+
+# ---------------------------------------------------------------------------
+# Wall hints: edges between cells that no single piece may cross
+# ---------------------------------------------------------------------------
+WALLS_PER_LEVEL = [10, 8, 6, 4, 2]  # hint edges per level (easier -> more)
+
+
+def _tiling_owners(t):
+    """Map every board cell to the piece covering it in tiling t."""
+    owners = {}
+    for pid, (cells, _) in t["placements"].items():
+        for c in cells:
+            owners[c] = pid
+    return owners
+
+
+def _tiling_satisfies_walls(t, walls):
+    """True when every walled edge separates two different pieces in
+    tiling t (no piece crosses a wall)."""
+    owners = _tiling_owners(t)
+    return all(owners[a] != owners[b] for a, b in walls)
+
+
+def _level_walls(tiling, mice, count):
+    """Pick up to `count` internal edges of `tiling` (where two different
+    pieces meet) as wall hints, prioritising edges that touch a mouse cell:
+    a rough outline around the mouse showing where the revealing piece
+    cannot extend. Walls never occupy cells and never change the tiling;
+    they only forbid placing a single piece across an edge."""
+    owners = _tiling_owners(tiling)
+    mice_set = set(mice)
+    near = set()
+    for m in mice_set:
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            near.add((m[0] + dx, m[1] + dy))
+
+    def edge_rank(edge):
+        a, b = edge
+        mouse_touch = (a in mice_set) + (b in mice_set)
+        near_touch = (a in near) + (b in near)
+        return (-mouse_touch, -near_touch, a[1], a[0], b[1], b[0])
+
+    cuts = []
+    for y in range(BOARD_H):
+        for x in range(BOARD_W):
+            for dx, dy in ((1, 0), (0, 1)):
+                a, b = (x, y), (x + dx, y + dy)
+                if b in owners and owners[a] != owners[b]:
+                    cuts.append((a, b))
+    cuts.sort(key=edge_rank)
+    return cuts[:count]
 
 
 def _best_mice_subset(tilings, k):
@@ -165,12 +229,14 @@ def _tiling_rot_count(t):
     return sum(1 for r in _rotations_for_tiling(t).values() if r != 0)
 
 
-def _min_rotations_required(tilings, mice):
+def _min_rotations_required(tilings, mice, walls=None):
     """Fewest pieces a player must rotate across all satisfying tilings.
     0 means the level can be won without ever rotating a piece."""
     mice = set(mice)
-    return min(_tiling_rot_count(t) for t in tilings
-               if mice.issubset(t["openings"]))
+    sats = [t for t in tilings if mice.issubset(t["openings"])]
+    if walls:
+        sats = [t for t in sats if _tiling_satisfies_walls(t, walls)]
+    return min(_tiling_rot_count(t) for t in sats)
 
 
 def _best_rotation_required_subset(tilings, k):
@@ -259,16 +325,25 @@ def main():
          "mice": l5_mice, "tiling": l5_tiling, "n": l5_n},
     ]
     ok = True
-    for spec in level_specs:
+    for idx, spec in enumerate(level_specs):
         t = spec["tiling"]
         mice = list(spec["mice"])
         n = spec["n"]
-        min_rot = _min_rotations_required(tilings, mice) if n > 0 else -1
+        walls = _level_walls(t, mice, WALLS_PER_LEVEL[idx])
+        n_walled = count_solutions_for_mice(tilings, mice, walls)
+        min_rot = (_min_rotations_required(tilings, mice, walls)
+                   if n_walled > 0 else -1)
         print(f"\nLevel {spec['id']} ({spec['room']}): mice={mice} "
               f"-> {n} satisfying solutions, "
+              f"{n_walled} with walls, "
               f"minimum rotations required: {max(min_rot, 0)}")
-        if n == 0:
-            print("  ERROR: level is not solvable!")
+        print(f"  walls ({len(walls)} edges): {walls}")
+        tres_walls = ", ".join(
+            "Vector2i(%d, %d), Vector2i(%d, %d)" % (a[0], a[1], b[0], b[1])
+            for a, b in walls)
+        print(f"  tres:   walls = Array[Vector2i]([{tres_walls}])")
+        if n_walled == 0:
+            print("  ERROR: level is not solvable with walls!")
             ok = False
         rotations = _rotations_for_tiling(t)
         out["levels"].append({
@@ -277,6 +352,7 @@ def main():
                            for pid, data in t["placements"].items()},
             "rotations": rotations,
             "min_rotations_required": max(min_rot, 0),
+            "walls": [list(c) for pair in walls for c in pair],
         })
 
     if not ok:
