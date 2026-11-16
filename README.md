@@ -11,7 +11,8 @@ Core Gameplay
 3. Drag and rotate the available puzzle pieces onto the board.
 4. Each piece has opaque areas and one or more transparent circular openings.
 5. Arrange all pieces to cover the puzzle board without overlap or gaps, according to the level's tile layout.
-6. Win when every mouse is visible through an opening and every puzzle piece is placed legally.
+6. Wall hints: short rough outlines on some edges between cells. No piece may be placed across a wall; the cells on both sides stay coverable. Walls never occupy cells or change the board area — they mark spots where pieces are cut in every valid solution, guiding players who are struggling.
+7. Win when every mouse is visible through an opening and every puzzle piece is placed legally.
 Reference mechanics: Ghost Hunters uses six transparent pieces and challenges where ghosts must be visible in circular light beams. Mouse-Hunter adapts that spatial-placement idea to mice and a household setting. The exact board dimensions, piece silhouettes, rotation rules, and opening positions must be defined and validated during prototyping; they should not be assumed from the reference.
 Theme and Setting
 Setting: A cozy, exaggerated cartoon house with oversized furniture, wooden floors, skirting boards, mouse holes, crumbs, and playful signs of a cat-and-mouse chase.
@@ -59,6 +60,7 @@ MVP Implementation Notes
 - Rotation levels: Bedroom, Bathroom and Attic cannot be won without rotating pieces (minimum 2-3 required rotations, solver-verified; the solver matches placed cells AND opening cells, since plank/step/skew silhouettes are 180-degree symmetric while their openings move).
 - Gameplay logic is rendering-independent: `scripts/placement_validator.gd` does pure board-space cell math; `scripts/piece_definition.gd` owns rotation transforms. Piece textures (opaque cells + transparent punched holes) are generated procedurally from the same data.
 - Input: one code path for mouse and touch (Godot's emulate_mouse_from_touch). Drag to move, tap (or R key) to rotate 90° clockwise, drop to snap; illegal drops and blocked rotations are rejected with a green/red snap preview. The HUD is authored directly in `scenes/main.tscn` for easy manual editing in the editor.
+- Wall hints: `LevelDefinition.walls` is a flat list of adjacent cell pairs — the edge shared by each pair is walled, and no piece may cover both cells. `PlacementValidator.is_placement_legal` enforces walls for drops and rotations, and the board draws each wall as a short rough hand-drawn-looking stroke. `tests/level_solver.py` chooses walls from the reference tiling's internal boundaries (mouse-adjacent edges first), so hints never invalidate a solution; all five levels ship with walls (10/8/6/4/2 edges) without changing any solution count.
 Later (Not MVP)
 - Hint system and undo.
 - Additional rooms and difficulty tiers.
@@ -74,8 +76,9 @@ A level should describe:
 - Piece IDs and their occupied cell footprints.
 - Circular opening positions relative to each piece.
 - Allowed orientations for each piece.
+- Wall hints: flat pairs of adjacent cells whose shared edge no piece may cross.
 - Optional locked pieces or obstacles, if introduced later.
-Placement validation must ensure each placed piece is within bounds, no occupied cells overlap, and the complete board is covered when the level requires full tiling.
+Placement validation must ensure each placed piece is within bounds, no occupied cells overlap, no walled edge is crossed by one piece, and the complete board is covered when the level requires full tiling.
 
 Reveal validation should calculate the transformed positions of the piece openings after rotation and placement, then check whether every target mouse is inside a visible opening. Use deterministic board-space geometry rather than visual sprite overlap alone.
 
@@ -86,10 +89,11 @@ Example level schema (illustrative only)
   "room": "kitchen",
   "board_size": [4, 4],
   "mice": [[0, 1], [2, 3]],
+  "walls": [[0, 1], [1, 1]],
   "piece_set": "starter_set",
   "allowed_rotations": [0, 90, 180, 270]
 }
-The example is not a guaranteed solvable level. Piece geometry and actual board dimensions will be established during implementation.
+The example is not a guaranteed solvable level. Piece geometry and actual board dimensions will be established during implementation. `walls` is a flat list of adjacent cell pairs; the edge shared by each pair is a wall no single piece may cross.
 Proposed Project Structure
 mouse-hunter/
 ├── README.md
@@ -135,7 +139,7 @@ Development Milestones
 6. Expansion: Additional rooms, hints, progression, and puzzle generator.
 Running and Testing
 - Open the project in Godot 4.x and press Play (main scene: `scenes/main.tscn`), or run the editor binary directly with the project path.
-- Controls: drag a piece with mouse or touch to move it; tap a piece (press + quick release without moving) or press R to rotate it 90° clockwise; drop on the board to snap. Illegal drops return the piece to the tray; placed pieces only rotate if the rotation stays legal. Win by covering the board completely with all openings revealing every mouse.
+- Controls: drag a piece with mouse or touch to move it; tap a piece (press + quick release without moving) or press R to rotate it 90° clockwise; drop on the board to snap. Illegal drops return the piece to the tray; placed pieces only rotate if the rotation stays legal. Pieces cannot be placed across the short wall outlines on cell edges. Win by covering the board completely with all openings revealing every mouse.
 - Verify level solvability (also regenerates `tests/solutions.json`): `python3 tests/level_solver.py`
 - Headless smoke test (loads the main scene, simulates drag/tap input, replays solver solutions, checks win/reset/next-level flow; cross-checks GDScript placement math against the Python solver): run the Godot binary with `--headless --path . --script res://tests/smoke_test.gd` — it prints PASS/FAIL lines and exits non-zero on failure.
 Reference and Attribution
@@ -143,4 +147,4 @@ Gameplay inspiration: Ghost Hunters — SmartGames.
 
 Mouse-Hunter is an independent project and is not affiliated with, sponsored by, or endorsed by SmartGames, Warner Bros., or the creators/owners of Tom & Jerry. Do not copy reference artwork, character likenesses, branding, challenge cards, or published level solutions into this repository without appropriate rights.
 Project Status
-MVP complete: all Minimum Viable Prototype requirements are implemented and validated headlessly (see Running and Testing). Art is placeholder (procedural shapes); interactive feel on a real display still needs manual playtesting. Next up: milestone 5 (house theme and original art).
+MVP complete: all Minimum Viable Prototype requirements are implemented and validated headlessly (see Running and Testing). All five levels include solver-designed wall hints (short rough outlines on cell edges that no piece may cross) to ease the difficulty. Art is placeholder (procedural shapes); interactive feel on a real display still needs manual playtesting. Next up: milestone 5 (house theme and original art).

@@ -1,7 +1,8 @@
 class_name PlacementValidator
 extends RefCounted
-## Pure board-space placement rules: bounds, overlap, coverage and mouse
-## reveal checks. Deterministic cell math only -- no rendering, no scenes.
+## Pure board-space placement rules: bounds, overlap, walls, coverage and
+## mouse reveal checks. Deterministic cell math only -- no rendering, no
+## scenes.
 ## Mirrors tests/level_solver.py so solver-verified levels stay valid.
 
 const ROTATION_STEPS := 4
@@ -39,11 +40,54 @@ static func has_no_overlap(world_cells: Array[Vector2i],
 	return true
 
 
+## Build the wall-edge lookup used by is_placement_legal. `pairs` is a flat
+## list of adjacent cells (a1, b1, a2, b2, ...): the edge shared by each
+## pair becomes a wall no single piece may cross.
+static func walls_from_pairs(pairs: Array) -> Dictionary:
+	var walls := {}
+	if pairs.size() % 2 != 0:
+		push_warning("PlacementValidator: odd wall pair list, last cell ignored")
+	var i := 0
+	while i + 1 < pairs.size():
+		walls[_edge_key(pairs[i], pairs[i + 1])] = true
+		i += 2
+	return walls
+
+
+## True when no two cells in `world_cells` are separated by a walled edge.
+static func crosses_no_wall(world_cells: Array[Vector2i],
+		walls: Dictionary) -> bool:
+	if walls.is_empty():
+		return true
+	var cell_set := {}
+	for c in world_cells:
+		cell_set[c] = true
+	for c in world_cells:
+		var right := c + Vector2i.RIGHT
+		var down := c + Vector2i.DOWN
+		if cell_set.has(right) and walls.has(_edge_key(c, right)):
+			return false
+		if cell_set.has(down) and walls.has(_edge_key(c, down)):
+			return false
+	return true
+
+
+## Canonical dictionary key for the edge shared by two adjacent cells.
+static func _edge_key(a: Vector2i, b: Vector2i) -> String:
+	var lo := a
+	var hi := b
+	if b.x < a.x or (b.x == a.x and b.y < a.y):
+		lo = b
+		hi = a
+	return "%d,%d|%d,%d" % [lo.x, lo.y, hi.x, hi.y]
+
+
 static func is_placement_legal(piece: PieceDefinition, orientation: int,
 		board_pos: Vector2i, board_size: Vector2i,
-		occupied: Dictionary) -> bool:
+		occupied: Dictionary, walls: Dictionary = {}) -> bool:
 	var wc := get_world_cells(piece, orientation, board_pos)
-	return is_in_bounds(wc, board_size) and has_no_overlap(wc, occupied)
+	return is_in_bounds(wc, board_size) and has_no_overlap(wc, occupied) \
+			and crosses_no_wall(wc, walls)
 
 
 ## Build a map of occupied board cells -> piece from every placed piece.

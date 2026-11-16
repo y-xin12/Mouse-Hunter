@@ -35,6 +35,9 @@ const PREVIEW_HOLE := Color(1, 1, 1, 0.8)
 
 var board_size := Vector2i(4, 6)
 var mice: Array[Vector2i] = []
+## Flat pairs of adjacent cells (a1, b1, a2, b2, ...); the edge shared by
+## each pair is walled and no piece may be placed across it.
+var walls: Array[Vector2i] = []
 var cell_px := 128.0
 ## World position of board cell (0, 0).
 var board_origin := Vector2.ZERO
@@ -48,9 +51,11 @@ var _mouse_texture: Texture2D = null
 var _mouse_texture_checked := false
 
 
-func setup(size: Vector2i, level_mice: Array[Vector2i]) -> void:
+func setup(size: Vector2i, level_mice: Array[Vector2i],
+		level_walls: Array[Vector2i]) -> void:
 	board_size = size
 	mice = level_mice.duplicate()
+	walls = level_walls.duplicate()
 	preview_cells = []
 	preview_openings = []
 	queue_redraw()
@@ -168,6 +173,8 @@ func _draw_preview() -> void:
 			var center := cell_to_world(o) + Vector2(cell_px, cell_px) * 0.5
 			draw_arc(center, cell_px * 0.28, 0.0, TAU, 28, PREVIEW_HOLE, 3.0, true)
 
+for i in range(0, walls.size(), 2):
+	_draw_wall_edge(walls[i], walls[i + 1], i)
 
 func _is_cell_in_bounds(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.y >= 0 \
@@ -208,6 +215,40 @@ func _draw_mouse_texture(tex: Texture2D, center: Vector2) -> void:
 
 func _draw_mouse_placeholder(center: Vector2) -> void:
 	## Procedural fallback used only when no mouse texture could be loaded.
+func _draw_wall_edge(a: Vector2i, b: Vector2i, index: int) -> void:
+	## One short rough, hand-drawn-looking stroke across the edge shared by
+	## cells a and b. The jitter is hashed from the wall index so the
+	## outline stays stable between redraws instead of flickering.
+	var a_center := cell_to_world(a) + Vector2(cell_px, cell_px) * 0.5
+	var b_center := cell_to_world(b) + Vector2(cell_px, cell_px) * 0.5
+	var mid := (a_center + b_center) * 0.5
+	var run := (b_center - a_center).orthogonal().normalized()
+	var normal := run.orthogonal()
+	var start := mid - run * (cell_px * 0.55)
+	var end := mid + run * (cell_px * 0.55)
+	var pts := PackedVector2Array()
+	var steps := 6
+	for j in range(steps + 1):
+		var t := float(j) / float(steps)
+		var wobble := (_hash01(index, j) - 0.5) * 2.0
+		var taper := sin(t * PI)
+		pts.append(start.lerp(end, t)
+				+ normal * (wobble * taper * cell_px * 0.07))
+	draw_polyline(pts, WALL_COLOR, max(cell_px * 0.08, 2.0), true)
+	# A fainter offset pass gives it the rough sketched look.
+	for k in pts.size():
+		pts[k] = pts[k] + normal * (cell_px * 0.05) + run * (cell_px * 0.03)
+	draw_polyline(pts, Color(WALL_COLOR.r, WALL_COLOR.g, WALL_COLOR.b, 0.35),
+			max(cell_px * 0.05, 1.5), true)
+
+
+func _hash01(a: int, b: int) -> float:
+	## Deterministic pseudo-random value in [0, 1).
+	var h := (a * 73856093) ^ (b * 19349663)
+	h = (h ^ (h >> 13)) * 1274126177
+	h = h ^ (h >> 16)
+	return float(h & 0xFFFF) / 65536.0
+
 	const BODY := Color(0.62, 0.62, 0.66)
 	const EAR := Color(0.72, 0.72, 0.76)
 	const EAR_INNER := Color(0.95, 0.65, 0.72)
