@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="PieceDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="PieceDefinition" format=3 uid="uid://cv7siittjcya2"]
 
-[ext_resource type="Script" path="res://scripts/piece_definition.gd" id="1_def"]
+[ext_resource type="Script" uid="uid://cmup7ybxtomlm" path="res://scripts/piece_definition.gd" id="1_def"]
 
 [resource]
 script = ExtResource("1_def")
 id = "corner"
 display_name = "Corner"
-color = Color(0.608, 0.365, 0.898, 1)
+color = Color(0.60784316, 0.3647059, 0.8980392, 0.627451)
 cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(1, 2)])
 openings = Array[Vector2i]([Vector2i(0, 1)])

@@ -142,6 +142,7 @@ Running and Testing
 - Controls: drag a piece with mouse or touch to move it; tap a piece (press + quick release without moving) or press R to rotate it 90° clockwise; drop on the board to snap. Illegal drops return the piece to the tray; placed pieces only rotate if the rotation stays legal. Pieces cannot be placed across the short wall outlines on cell edges. Win by covering the board completely with all openings revealing every mouse.
 - Verify level solvability (also regenerates `tests/solutions.json`): `python3 tests/level_solver.py`
 - Headless smoke test (loads the main scene, simulates drag/tap input, replays solver solutions, checks win/reset/next-level flow; cross-checks GDScript placement math against the Python solver): run the Godot binary with `--headless --path . --script res://tests/smoke_test.gd` — it prints PASS/FAIL lines and exits non-zero on failure.
+- Responsive layout check (applies the project's `canvas_items` + `expand` stretch settings and runs the main scene at 720x1280, 1080x2400 and 1440x2960 window sizes; verifies uniform device scaling, square board cells, board centering with no HUD/tray overlap, drag/tap input alignment at every size, plus a live window resize): run the Godot binary with `--headless --path . --script res://tests/resolution_check.gd`.
 Reference and Attribution
 Gameplay inspiration: Ghost Hunters — SmartGames.
 
