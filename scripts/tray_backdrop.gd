@@ -9,6 +9,10 @@ const WOOD_DARK := Color(0.66, 0.42, 0.20)
 const WOOD := Color(0.80, 0.55, 0.30)
 const CREAM := Color(0.985, 0.93, 0.83)
 const INNER_SHADOW := Color(0.35, 0.22, 0.10, 0.16)
+## Inset from the outer rect to the cream interior. GameManager clips the
+## resting tray pieces to this inner area so they slide under the wooden
+## frame instead of drawing over it.
+const INNER_INSET := 12.0
 
 var rect := Rect2()
 var _box: StyleBoxFlat
@@ -28,7 +32,7 @@ func _draw() -> void:
 	_draw_box(rect.grow(-4.0), WOOD, 22)
 	# Recess shadow, then the cream interior the pieces rest on.
 	_draw_box(rect.grow(-10.0), INNER_SHADOW, 18)
-	_draw_box(rect.grow(-12.0), CREAM, 16)
+	_draw_box(rect.grow(-INNER_INSET), CREAM, 16)
 
 
 func _ensure_box() -> void:
