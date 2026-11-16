@@ -12,7 +12,7 @@ const TAP_MAX_SECONDS := 0.45
 ## Vertical space reserved for the header, instruction and goal labels.
 const TOP_HUD_HEIGHT := 150.0
 ## Fraction of the remaining height given to the board (rest is the tray).
-const BOARD_ZONE_RATIO := 0.56
+const BOARD_ZONE_RATIO := 0.7
 const SCREEN_MARGIN := 8.0
 const Z_PLACED := 5
 const Z_DRAGGING := 100
