@@ -19,6 +19,9 @@ extends SceneTree
 ## manually before the main scene is measured.
 
 const TOLERANCE := 0.6
+## project.godot's display/window/stretch/scale (content_scale_factor). The
+## stretch settings are mirrored onto the root window manually below.
+const STRETCH_SCALE := 1.89
 
 const RESOLUTIONS := [
 	Vector2i(720, 1280),   # base portrait phone (project design size)
@@ -143,6 +146,7 @@ func _test_resolution(res: Vector2i) -> void:
 	await process_frame
 	await process_frame
 	gm = main
+	gm._on_difficulty_selected(0)
 	_layout_checks(canvas)
 	_input_checks()
 	main.queue_free()
@@ -273,6 +277,7 @@ func _test_live_resize() -> void:
 	await process_frame
 	await process_frame
 	gm = main
+	gm._on_difficulty_selected(0)
 	var small_cell: float = gm.board.cell_px
 
 	await _set_window_size(Vector2i(1440, 2960))
