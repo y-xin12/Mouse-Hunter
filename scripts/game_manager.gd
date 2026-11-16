@@ -65,8 +65,6 @@ const TRAY_FRICTION := 4.5
 @onready var top_bar: Control = %TopBar
 @onready var hint_label: Label = %HintLabel
 @onready var goal_panel: Control = %GoalPanel
-@onready var win_label: Label = %WinLabel
-@onready var restart_button: Button = %RestartButton
 
 var level: LevelDefinition
 var level_index := 0
@@ -280,15 +278,8 @@ func _layout_hud(s: float) -> void:
 	goal_panel.offset_right = 110.0 * s
 	goal_panel.offset_bottom = 144.0 * s
 	goal_label.add_theme_font_size_override("font_size", _fs(16.0, s))
-	win_panel.offset_left = -200.0 * s
-	win_panel.offset_top = -150.0 * s
-	win_panel.offset_right = 200.0 * s
-	win_panel.offset_bottom = 150.0 * s
-	win_label.add_theme_font_size_override("font_size", _fs(34.0, s))
-	win_subtitle.add_theme_font_size_override("font_size", _fs(22.0, s))
-	restart_button.add_theme_font_size_override("font_size", _fs(22.0, s))
-	next_button.add_theme_font_size_override("font_size", _fs(22.0, s))
-
+	# The completion popup (WinPopup) self-centers via full-rect anchors and
+	# manages its own fonts/animation, so it takes no part in HUD scaling.
 
 func _fs(base: float, s: float) -> int:
 	## Font sizes are integer theme overrides; never emit a zero size.
