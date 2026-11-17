@@ -40,9 +40,9 @@ func _run_tests() -> void:
 	_check(gm.level.mice.size() == 3, "level 1 has 3 mice")
 	_check(gm.level_label.text == "Level 1 — Kitchen", "level label text")
 	_check(gm.menu_open and gm.home_panel.visible, "home screen shown on boot")
-	_check(_badge_text(0) == "LV 1" and _badge_text(1) == "LV 2"
-			and _badge_text(2) == "LV 3" and _badge_text(3) == "LV 5",
-			"chips show each difficulty's first level on a fresh game")
+	_check(_badge_text(0) == "Level 1" and _badge_text(1) == "Level 2"
+			and _badge_text(2) == "Level 3" and _badge_text(3) == "Level 5",
+			"level pills show each difficulty's first level on a fresh game")
 	gm.home_panel.get_node("EasyButton").pressed.emit()
 	_check(not gm.home_panel.visible and not gm.menu_open,
 			"difficulty button closes the home screen")
@@ -119,14 +119,16 @@ func _run_tests() -> void:
 
 	var hook: PuzzlePiece = _find_piece("hook")
 	# --- Scrolling the tray carousel -------------------------------------
-	# Hook lives in slot 4, beyond the visible window. A horizontal swipe
-	# starting on a tray piece (the plank) must scroll the carousel instead
-	# of dragging the piece, and bring hook into view.
+	# Hook parks at slot index 4 (the fifth piece), beyond the 3-slot
+	# window. A horizontal swipe starting on a tray piece (the plank) must
+	# scroll the carousel instead of dragging the piece — far enough to
+	# reveal hook at any canvas scale (the piece's visual width varies
+	# with the tray height, so a marginal swipe is not enough).
 	_check(not hook.visible, "hook hidden before scrolling")
-	_swipe_tray(_piece_center(plank), -1.4 * gm.tray_slot_w)
+	_swipe_tray(_piece_center(plank), -2.5 * gm.tray_slot_w)
 	_check(gm.tray_scroll > 0.0, "swipe scrolled the tray")
-	_check(not plank.placed and plank.visible,
-			"swiped piece stayed parked in the tray")
+	_check(not plank.placed and plank.get_parent() == gm.tray_clip,
+			"swiped piece stayed parked in the tray (not picked up)")
 	_check(hook.visible, "hook scrolled into view")
 	var old_orientation := hook.orientation
 	var old_hook_scale: Vector2 = hook.scale
@@ -141,7 +143,7 @@ func _run_tests() -> void:
 	# Swipe back the other way so later drag tests start from rest.
 	_swipe_tray(gm.tray_rect.position + Vector2(
 			gm.tray_rect.size.x * 0.3, gm.tray_rect.size.y * 0.95),
-			1.4 * gm.tray_slot_w)
+			2.5 * gm.tray_slot_w)
 	_check(absf(gm.tray_scroll) < 0.01, "swipe back returns the tray to rest")
 
 	# --- Tap-rotate a placed piece keeps it on the board -----------------
@@ -263,8 +265,8 @@ func _run_tests() -> void:
 	_check(not gm.next_button.visible and gm.home_button.visible,
 			"easy group ends with the Home button")
 	gm._refresh_home_badges()
-	_check(_badge_text(0) == "LV 2" and _badge_text(1) == "LV 2",
-			"finishing level 1 advances the easy chip to LV 2")
+	_check(_badge_text(0) == "Level 2" and _badge_text(1) == "Level 2",
+			"finishing level 1 advances the easy pill to Level 2")
 
 	# --- Reset -----------------------------------------------------------
 	gm._reset_level()
@@ -283,8 +285,8 @@ func _run_tests() -> void:
 	_apply_solution(data["levels"][1])
 	_check(gm.won, "win detected for level 2 solution")
 	gm._refresh_home_badges()
-	_check(_badge_text(1) == "LV 3",
-			"finishing level 2 advances the medium chip to LV 3")
+	_check(_badge_text(1) == "Level 3",
+			"finishing level 2 advances the medium pill to Level 3")
 
 	gm._next_level()
 	_check(gm.level.id == "bedroom_003", "level 3 loaded")
@@ -305,8 +307,8 @@ func _run_tests() -> void:
 	_check(not gm.next_button.visible and gm.home_button.visible,
 			"hard group ends with the Home button")
 	gm._refresh_home_badges()
-	_check(_badge_text(2) == "LV 5",
-			"finishing the hard group advances its chip to LV 5")
+	_check(_badge_text(2) == "Level 5",
+			"finishing the hard group advances its pill to Level 5")
 	_check(int(lvl4["min_rotations_required"]) >= 1,
 			"level 4 cannot be won without rotation (solver-verified)")
 	_check(_solution_uses_rotation(lvl4),
@@ -334,9 +336,9 @@ func _run_tests() -> void:
 
 	# --- Home screen difficulty mapping -----------------------------------
 	gm._refresh_home_badges()
-	_check(_badge_text(0) == "LV 2" and _badge_text(1) == "LV 3"
-			and _badge_text(2) == "LV 5" and _badge_text(3) == "UNAVAIL",
-			"home chips reflect the finished game")
+	_check(_badge_text(0) == "Level 2" and _badge_text(1) == "Level 3"
+			and _badge_text(2) == "Level 5" and _badge_text(3) == "UNAVAIL",
+			"home pills reflect the finished game")
 	gm.home_panel.get_node("SuperHardButton").pressed.emit()
 	_check(gm.level_index == 0, "unavailable difficulty loads nothing")
 	gm.home_panel.get_node("EasyButton").pressed.emit()

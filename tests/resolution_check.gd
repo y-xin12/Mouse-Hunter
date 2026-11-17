@@ -3,7 +3,7 @@ extends SceneTree
 ## Run:  <godot> --headless --path . --script res://tests/resolution_check.gd
 ## Exits with code 0 when all checks pass, 1 otherwise.
 ##
-## Verifies the mobile UI across window sizes (720x1280 base, 1080x2400
+## Verifies the mobile UI across window sizes (720x1280, 1080x2400
 ## and 1440x2960 tall phones):
 ##   - the project's stretch settings (read live from ProjectSettings,
 ##     including the stretch scale) yield a uniform device scale and the
@@ -24,7 +24,7 @@ const TOLERANCE := 0.6
 const STRETCH_SCALE := 1.89
 
 const RESOLUTIONS := [
-	Vector2i(720, 1280),   # base portrait phone (project design size)
+	Vector2i(720, 1280),   # base portrait phone
 	Vector2i(1080, 2400),  # 20:9 FHD+ phone
 	Vector2i(1440, 2960),  # 18.5:9 tall QHD phone
 ]
@@ -268,10 +268,13 @@ func _input_checks() -> void:
 
 func _test_live_resize() -> void:
 	## A window resize after load must re-run the layout (GameManager
-	## connects the viewport's size_changed signal to _layout): simulates
-	## moving from a 720p phone to a tall QHD phone mid-game.
-	print("-- live resize 720x1280 -> 1440x2960 --")
-	await _set_window_size(Vector2i(720, 1280))
+	## connects the viewport's size_changed signal to _layout). With the
+	## expand aspect and stretch scale, windows taller than the viewport
+	## aspect all share the same canvas WIDTH (viewport_width/scale) but
+	## grow taller: 1440x2960 yields a 783 px-tall canvas, 1000x2960 a
+	## 1128 px-tall one — and the height-limited board cell grows with it.
+	print("-- live resize 1440x2960 -> 1000x2960 --")
+	await _set_window_size(Vector2i(1440, 2960))
 	var main: Node2D = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
@@ -280,7 +283,7 @@ func _test_live_resize() -> void:
 	gm._on_difficulty_selected(0)
 	var small_cell: float = gm.board.cell_px
 
-	await _set_window_size(Vector2i(1440, 2960))
+	await _set_window_size(Vector2i(1000, 2960))
 	await process_frame
 	await process_frame
 	_check(gm.board.cell_px > small_cell,

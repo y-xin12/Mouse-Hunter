@@ -27,6 +27,10 @@ const DIFFICULTY_LEVELS := [0, 1, 2, 4]
 ## and scaled to the real canvas (project stretch/scale makes the canvas
 ## narrower than the 720 px design), so it keeps the reference proportions.
 const MENU_DESIGN_WIDTH := 720.0
+## Height of the home-screen design space (logo, peeking mouse and the four
+## difficulty rows fit inside it). The menu scale never exceeds what fits
+## BOTH canvas axes, so short desktop windows keep every button reachable.
+const MENU_DESIGN_HEIGHT := 1280.0
 ## Extra drags allowed before the star rating drops from three to two.
 const STAR_2_EXTRA_MOVES := 3
 ## Piece slots visible in the tray carousel at once.
@@ -57,10 +61,13 @@ const TRAY_FRICTION := 4.5
 @onready var next_button: Button = %NextButton
 @onready var home_button: Button = %HomeButton
 @onready var home_panel: Control = %HomePanel
-## Difficulty buttons and their progress chips, in DIFFICULTY_LEVELS order.
-@onready var difficulty_buttons: Array[Button] = [
+## Full-canvas home background art; a MenuLayer sibling so it covers the
+## screen even when the centered home design is narrower than the canvas.
+@onready var home_bg: TextureRect = $MenuLayer/Background
+## Difficulty buttons and their level pills, in DIFFICULTY_LEVELS order.
+@onready var difficulty_buttons: Array[TextureButton] = [
 	%EasyButton, %MediumButton, %HardButton, %SuperHardButton]
-@onready var difficulty_badges: Array[PanelContainer] = [
+@onready var difficulty_badges: Array[TextureRect] = [
 	%EasyBadge, %MediumBadge, %HardBadge, %SuperHardBadge]
 @onready var top_bar: Control = %TopBar
 @onready var hint_label: Label = %HintLabel
@@ -126,20 +133,22 @@ func _show_home() -> void:
 	## Cover the game with the title/difficulty screen and swallow input.
 	menu_open = true
 	home_panel.visible = true
+	home_bg.visible = true
 	_refresh_home_badges()
 
 
 func _refresh_home_badges() -> void:
-	## Update each difficulty button's progress chip: the next level it will
+	## Update each difficulty button's level pill: the next level it will
 	## load, or a greyed UNAVAIL (with the button disabled) when none remains.
 	for i in DIFFICULTY_LEVELS.size():
 		var next := _next_level_for_difficulty(i)
 		var available := next >= 0
-		var badge: PanelContainer = difficulty_badges[i]
+		var badge: TextureRect = difficulty_badges[i]
 		var label: Label = badge.get_child(0)
-		label.text = "LV %d" % next if available else "UNAVAIL"
-		label.add_theme_font_size_override("font_size", 26 if available else 20)
-		badge.modulate = Color.WHITE if available else Color(0.65, 0.65, 0.68)
+		label.text = "Level %d" % next if available else "UNAVAIL"
+		var tint := Color.WHITE if available else Color(0.62, 0.6, 0.58)
+		badge.modulate = tint
+		difficulty_buttons[i].modulate = tint
 		difficulty_buttons[i].disabled = not available
 
 
@@ -156,6 +165,7 @@ func _on_difficulty_selected(button_index: int) -> void:
 		return  # UNAVAIL: the whole game is finished
 	menu_open = false
 	home_panel.visible = false
+	home_bg.visible = false
 	_load_level(next - 1)
 
 
@@ -232,13 +242,20 @@ func _layout() -> void:
 
 
 func _layout_home(vp_x: float, vp_y: float) -> void:
-	## Scale the 720 px-wide home design to the real canvas and stretch its
-	## background to the full canvas height so it always covers the screen.
+	## Scale the 720x1280 home design uniformly to fit the canvas on BOTH
+	## axes and center it, so short desktop windows (clamped by the OS)
+	## keep every difficulty button reachable. The background art is a
+	## full-canvas MenuLayer sibling, so it covers the screen even when
+	## the centered design is narrower than the canvas.
 	if home_panel == null:
 		return
-	var menu_scale: float = vp_x / MENU_DESIGN_WIDTH
+	var menu_scale: float = minf(
+			vp_x / MENU_DESIGN_WIDTH, vp_y / MENU_DESIGN_HEIGHT)
 	home_panel.scale = Vector2(menu_scale, menu_scale)
 	home_panel.size = Vector2(MENU_DESIGN_WIDTH, vp_y / menu_scale)
+	home_panel.position = Vector2(
+			(vp_x - MENU_DESIGN_WIDTH * menu_scale) * 0.5,
+			maxf((vp_y - MENU_DESIGN_HEIGHT * menu_scale) * 0.5, 0.0))
 	# Resting pieces are clipped to the tray's cream interior so a scrolled
 	# piece slides UNDER the wooden frame instead of floating over it.
 	var clip_rect := tray_rect.grow(-TrayBackdrop.INNER_INSET)

@@ -23,6 +23,7 @@ window/size/window_width_override=1440
 window/size/window_height_override=2960
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/stretch/scale=1.89
 window/handheld/orientation=1
 
 [physics]
