@@ -529,7 +529,6 @@ theme_override_constants/separation = 10
 size_flags_horizontal = 3
 
 [node name="MovesCaption" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/MovesBox"]
-unique_name_in_owner = true
 theme_override_colors/font_color = Color(0.52, 0.38, 0.24, 1)
 theme_override_font_sizes/font_size = 14
 text = "MOVES"
@@ -546,7 +545,6 @@ horizontal_alignment = 1
 size_flags_horizontal = 3
 
 [node name="TimeCaption" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/TimeBox"]
-unique_name_in_owner = true
 theme_override_colors/font_color = Color(0.52, 0.38, 0.24, 1)
 theme_override_font_sizes/font_size = 14
 text = "TIME"
