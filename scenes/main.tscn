@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dpte576bqvnc2"]
+[gd_scene format=3 uid="uid://ui2pw8c6p1pj"]
 
 [ext_resource type="Script" uid="uid://cc73vm3jm1mpv" path="res://scripts/game_manager.gd" id="1_gm"]
 [ext_resource type="PackedScene" path="res://scenes/puzzle_board.tscn" id="2_board"]
