@@ -58,8 +58,8 @@ const TRAY_FRICTION := 4.5
 @onready var goal_label: Label = %GoalLabel
 @onready var reset_button: Button = %ResetButton
 @onready var win_panel = %WinPopup
-@onready var next_button: Button = %NextButton
-@onready var home_button: Button = %HomeButton
+@onready var next_button: TextureButton = %NextButton
+@onready var home_button: TextureButton = %HomeButton
 @onready var home_panel: Control = %HomePanel
 ## Full-canvas home background art; a MenuLayer sibling so it covers the
 ## screen even when the centered home design is narrower than the canvas.

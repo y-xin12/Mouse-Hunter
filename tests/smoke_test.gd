@@ -259,11 +259,23 @@ func _run_tests() -> void:
 	var shown_time: String = gm.win_panel.time_value.text
 	_check(shown_time.length() == 5 and shown_time[2] == ":",
 			"popup shows an MM:SS completion time")
-	_check(gm.win_panel.stars[0].earned and gm.win_panel.stars[1].earned
-			and gm.win_panel.stars[2].earned,
-			"clean run reveals three stars")
+	_check(gm.win_panel.stars_img.texture == load("res://assets/UI/3 Stars.png"),
+			"clean run reveals the three-star art")
 	_check(not gm.next_button.visible and gm.home_button.visible,
 			"easy group ends with the Home button")
+	# Star art follows the rating; the trailing button swaps at group ends.
+	gm.win_panel.show_popup(2, gm.move_count, "00:05", false)
+	_check(gm.win_panel.stars_img.texture == load("res://assets/UI/2 Stars.png"),
+			"two-star result swaps to the 2 Stars art")
+	_check(gm.next_button.visible and not gm.home_button.visible,
+			"mid-group result offers Next Level")
+	gm.win_panel.show_popup(1, gm.move_count, "00:05", true)
+	_check(gm.win_panel.stars_img.texture == load("res://assets/UI/1 star.png"),
+			"one-star result swaps to the 1 star art")
+	_check(not gm.next_button.visible and gm.home_button.visible,
+			"last level swaps Next Level for Home")
+	# Restore the real result so later checks see the genuine popup state.
+	gm.win_panel.show_popup(3, gm.move_count, "00:05", true)
 	gm._refresh_home_badges()
 	_check(_badge_text(0) == "Level 2" and _badge_text(1) == "Level 2",
 			"finishing level 1 advances the easy pill to Level 2")

@@ -1,10 +1,9 @@
-[gd_scene format=3 uid="uid://ui2pw8c6p1pj"]
+[gd_scene format=3 uid="uid://dpte576bqvnc2"]
 
 [ext_resource type="Script" uid="uid://cc73vm3jm1mpv" path="res://scripts/game_manager.gd" id="1_gm"]
-[ext_resource type="PackedScene" uid="uid://cpk16va7v4wbo" path="res://scenes/puzzle_board.tscn" id="2_board"]
+[ext_resource type="PackedScene" path="res://scenes/puzzle_board.tscn" id="2_board"]
 [ext_resource type="Script" uid="uid://bggli2rnrqyar" path="res://scripts/tray_backdrop.gd" id="3_tray"]
 [ext_resource type="Texture2D" uid="uid://dlw8ubw7p76c1" path="res://assets/UI/background.png" id="4_bg"]
-[ext_resource type="Script" uid="uid://dekpl8lrw5vlp" path="res://scripts/star_display.gd" id="5_star"]
 [ext_resource type="Script" uid="uid://dhnfevc3qmawv" path="res://scripts/level_complete_popup.gd" id="6_popup"]
 [ext_resource type="FontFile" uid="uid://rllsutc2j31e" path="res://assets/Font/Fredoka-Bold.ttf" id="7_o6xl0"]
 [ext_resource type="Texture2D" uid="uid://dt1kxdsyep86q" path="res://assets/UI/logo.png" id="8_logo"]
@@ -18,6 +17,13 @@
 [ext_resource type="Texture2D" uid="uid://csd05vk5ce4ls" path="res://assets/UI/level_pill/pill_medium.png" id="16_pm"]
 [ext_resource type="Texture2D" uid="uid://chnshslt77qt2" path="res://assets/UI/level_pill/pill_hard.png" id="17_ph"]
 [ext_resource type="Texture2D" uid="uid://uqd2h50xg8th" path="res://assets/UI/level_pill/pill_super_hard.png" id="18_ps"]
+[ext_resource type="Texture2D" uid="uid://du8tke7onjbeu" path="res://assets/UI/completion board.png" id="19_board"]
+[ext_resource type="Texture2D" uid="uid://7yvl35n4ynrx" path="res://assets/UI/level complete banner.png" id="20_banner"]
+[ext_resource type="Texture2D" uid="uid://uk6d7d83vrqq" path="res://assets/UI/3 Stars.png" id="21_stars3"]
+[ext_resource type="Texture2D" uid="uid://dm4q60ake0cgs" path="res://assets/UI/next level.png" id="24_next"]
+[ext_resource type="Texture2D" uid="uid://cnhs3dqmahqpv" path="res://assets/UI/home.png" id="25_home"]
+[ext_resource type="Texture2D" uid="uid://gc5bw84x24h5" path="res://assets/UI/moves and time.png" id="26_stats"]
+[ext_resource type="Texture2D" uid="uid://bi7g2ue8kwae" path="res://assets/UI/replay.png" id="27_replay"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_topbar"]
 bg_color = Color(0.995, 0.95, 0.87, 1)
@@ -85,164 +91,17 @@ shadow_color = Color(0.42, 0.27, 0.12, 0.14)
 shadow_size = 5
 shadow_offset = Vector2(0, 3)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_popup"]
-bg_color = Color(0.995, 0.95, 0.87, 1)
-border_width_left = 10
-border_width_top = 10
-border_width_right = 10
-border_width_bottom = 10
-border_color = Color(0.63, 0.4, 0.22, 1)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
-shadow_color = Color(0.3, 0.16, 0.06, 0.4)
-shadow_size = 18
-shadow_offset = Vector2(0, 8)
+[sub_resource type="AtlasTexture" id="AtlasTexture_paw_l"]
+atlas = ExtResource("9_peek")
+region = Rect2(68, 282, 118, 73)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_logo_ribbon"]
-bg_color = Color(0.95, 0.42, 0.55, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 4
-border_color = Color(0.74, 0.22, 0.35, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+[sub_resource type="AtlasTexture" id="AtlasTexture_paw_r"]
+atlas = ExtResource("9_peek")
+region = Rect2(306, 282, 124, 73)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats"]
-bg_color = Color(0.98, 0.9, 0.76, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.9, 0.76, 0.55, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_easy"]
-bg_color = Color(0.47, 0.79, 0.29, 1)
-border_width_left = 7
-border_width_top = 7
-border_width_right = 7
-border_width_bottom = 7
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 58
-corner_radius_top_right = 58
-corner_radius_bottom_right = 58
-corner_radius_bottom_left = 58
-shadow_color = Color(0.15, 0.35, 0.05, 0.35)
-shadow_size = 8
-shadow_offset = Vector2(0, 7)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_easy_pressed"]
-bg_color = Color(0.4, 0.7, 0.22, 1)
-border_width_left = 7
-border_width_top = 7
-border_width_right = 7
-border_width_bottom = 7
-border_color = Color(0.93, 0.98, 0.88, 1)
-corner_radius_top_left = 58
-corner_radius_top_right = 58
-corner_radius_bottom_right = 58
-corner_radius_bottom_left = 58
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_easy_hover"]
-bg_color = Color(0.55, 0.86, 0.36, 1)
-border_width_left = 7
-border_width_top = 7
-border_width_right = 7
-border_width_bottom = 7
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 58
-corner_radius_top_right = 58
-corner_radius_bottom_right = 58
-corner_radius_bottom_left = 58
-shadow_color = Color(0.15, 0.35, 0.05, 0.35)
-shadow_size = 10
-shadow_offset = Vector2(0, 8)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_medium"]
-bg_color = Color(1, 0.78, 0.24, 1)
-border_width_left = 7
-border_width_top = 7
-border_width_right = 7
-border_width_bottom = 7
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 58
-corner_radius_top_right = 58
-corner_radius_bottom_right = 58
-corner_radius_bottom_left = 58
-shadow_color = Color(0.62, 0.4, 0.02, 0.35)
-shadow_size = 8
-shadow_offset = Vector2(0, 7)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_medium_pressed"]
-bg_color = Color(0.93, 0.68, 0.14, 1)
-border_width_left = 7
-border_width_top = 7
-border_width_right = 7
-border_width_bottom = 7
-border_color = Color(1, 0.97, 0.88, 1)
-corner_radius_top_left = 58
-corner_radius_top_right = 58
-corner_radius_bottom_right = 58
-corner_radius_bottom_left = 58
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_medium_hover"]
-bg_color = Color(1, 0.85, 0.4, 1)
-border_width_left = 7
-border_width_top = 7
-border_width_right = 7
-border_width_bottom = 7
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 58
-corner_radius_top_right = 58
-corner_radius_bottom_right = 58
-corner_radius_bottom_left = 58
-shadow_color = Color(0.62, 0.4, 0.02, 0.35)
-shadow_size = 10
-shadow_offset = Vector2(0, 8)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_replay"]
-bg_color = Color(1, 0.95, 0.86, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.85, 0.68, 0.46, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_replay_pressed"]
-bg_color = Color(0.95, 0.87, 0.74, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.78, 0.58, 0.36, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_replay_hover"]
-bg_color = Color(1, 0.98, 0.92, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.78, 0.58, 0.36, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+[sub_resource type="AtlasTexture" id="AtlasTexture_statsbar"]
+atlas = ExtResource("26_stats")
+region = Rect2(7, 10, 450, 84)
 
 [node name="Main" type="Node2D" unique_id=579147649]
 script = ExtResource("1_gm")
@@ -364,187 +223,178 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("6_popup")
 
+[node name="Background" type="TextureRect" parent="WinLayer/WinPopup" unique_id=549133626]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource("4_bg")
+expand_mode = 5
+stretch_mode = 6
+
 [node name="Dimmer" type="ColorRect" parent="WinLayer/WinPopup" unique_id=1343888858]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.16, 0.1, 0.05, 0.45)
+color = Color(0.16, 0.1, 0.05, 0.25)
 
-[node name="Center" type="CenterContainer" parent="WinLayer/WinPopup" unique_id=1646886598]
+[node name="Card" type="Control" parent="WinLayer/WinPopup" unique_id=180579690]
+unique_name_in_owner = true
+anchors_preset = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -315.5
+offset_top = -481.0
+offset_right = 315.5
+offset_bottom = 481.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MousePeek" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=1279207316]
 layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
+offset_left = 102.259
+offset_top = 3.0
+offset_right = 532.259
+offset_bottom = 315.168
+mouse_filter = 2
+texture = ExtResource("9_peek")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="Panel" type="PanelContainer" parent="WinLayer/WinPopup/Center" unique_id=1489229622]
-custom_minimum_size = Vector2(520, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_popup")
+[node name="Board" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=1107187139]
+layout_mode = 0
+offset_left = 41.346
+offset_top = 258.0
+offset_right = 586.206
+offset_bottom = 950.0
+mouse_filter = 2
+texture = ExtResource("19_board")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="Margin" type="MarginContainer" parent="WinLayer/WinPopup/Center/Panel" unique_id=1692467778]
-layout_mode = 2
-theme_override_constants/margin_left = 26
-theme_override_constants/margin_top = 22
-theme_override_constants/margin_right = 26
-theme_override_constants/margin_bottom = 26
+[node name="PawLeft" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=521433890]
+layout_mode = 0
+offset_left = 162.054
+offset_top = 250.975
+offset_right = 265.817
+offset_bottom = 315.168
+mouse_filter = 2
+texture = SubResource("AtlasTexture_paw_l")
+expand_mode = 1
 
-[node name="VBox" type="VBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin" unique_id=2130106364]
-layout_mode = 2
-theme_override_constants/separation = 20
+[node name="PawRight" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=381745092]
+layout_mode = 0
+offset_left = 371.338
+offset_top = 250.975
+offset_right = 480.377
+offset_bottom = 315.168
+mouse_filter = 2
+texture = SubResource("AtlasTexture_paw_r")
+expand_mode = 1
 
-[node name="Ribbon" type="PanelContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox" unique_id=408368585]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_logo_ribbon")
+[node name="Banner" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=928231700]
+layout_mode = 0
+offset_left = 66.054
+offset_top = 363.0
+offset_right = 576.054
+offset_bottom = 535.087
+mouse_filter = 2
+texture = ExtResource("20_banner")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="RibbonMargin" type="MarginContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Ribbon" unique_id=2051886177]
-layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 8
-
-[node name="WinLabel" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Ribbon/RibbonMargin" unique_id=445964985]
+[node name="StarsImg" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=1477668091]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.94, 0.84, 1)
-theme_override_colors/font_outline_color = Color(0.66, 0.18, 0.3, 1)
-theme_override_constants/outline_size = 8
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 40
-text = "LEVEL COMPLETE!"
-horizontal_alignment = 1
+layout_mode = 0
+offset_left = 155.5
+offset_top = 493.0
+offset_right = 475.5
+offset_bottom = 610.0
+mouse_filter = 2
+texture = ExtResource("21_stars3")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="Stars" type="HBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox" unique_id=697973226]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
+[node name="MovesTimeBar" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=614208773]
+layout_mode = 0
+offset_left = 110.5
+offset_top = 624.0
+offset_right = 520.5
+offset_bottom = 716.0
+mouse_filter = 2
+texture = SubResource("AtlasTexture_statsbar")
+expand_mode = 1
 
-[node name="Star1" type="Control" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stars" unique_id=1132895276]
+[node name="MovesValue" type="Label" parent="WinLayer/WinPopup/Card" unique_id=1554806435]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 2
-script = ExtResource("5_star")
-
-[node name="Star2" type="Control" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stars" unique_id=539048408]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 2
-script = ExtResource("5_star")
-
-[node name="Star3" type="Control" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stars" unique_id=1348273892]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 2
-script = ExtResource("5_star")
-
-[node name="Stats" type="PanelContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox" unique_id=933240584]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stats")
-
-[node name="StatsMargin" type="MarginContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats" unique_id=16685395]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
-
-[node name="StatsBox" type="HBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin" unique_id=1662430031]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="MovesBox" type="VBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox" unique_id=2013308638]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="MovesCaption" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/MovesBox" unique_id=1479700517]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.52, 0.38, 0.24, 1)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 20
-text = "MOVES"
-horizontal_alignment = 1
-
-[node name="MovesValue" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/MovesBox" unique_id=1172548934]
-unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 0
+offset_left = 167.1
+offset_top = 660.0
+offset_right = 267.1
+offset_bottom = 712.0
 theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
 theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 30
 text = "0"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="TimeBox" type="VBoxContainer" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox" unique_id=1433530794]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="TimeCaption" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/TimeBox" unique_id=26842524]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.52, 0.38, 0.24, 1)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 20
-text = "TIME"
-horizontal_alignment = 1
-
-[node name="TimeValue" type="Label" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox/Stats/StatsMargin/StatsBox/TimeBox" unique_id=1246605675]
+[node name="TimeValue" type="Label" parent="WinLayer/WinPopup/Card" unique_id=389707809]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 0
+offset_left = 384.5
+offset_top = 662.0
+offset_right = 483.5
+offset_bottom = 711.0
 theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
 theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 30
 text = "00:00"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="NextButton" type="Button" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox" unique_id=962299204]
+[node name="NextButton" type="TextureButton" parent="WinLayer/WinPopup/Card" unique_id=962299204]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 78)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.2, 0.35, 0.1, 1)
-theme_override_constants/outline_size = 10
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 32
-theme_override_styles/normal = SubResource("StyleBoxFlat_easy")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_easy_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_easy_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_easy")
-text = "NEXT LEVEL"
+layout_mode = 0
+offset_left = 148.165
+offset_top = 735.0
+offset_right = 478.165
+offset_bottom = 805.8
+texture_normal = ExtResource("24_next")
+ignore_texture_size = true
+stretch_mode = 0
 script = ExtResource("10_juicy")
+bob_enabled = false
 
-[node name="HomeButton" type="Button" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox" unique_id=974133734]
+[node name="HomeButton" type="TextureButton" parent="WinLayer/WinPopup/Card" unique_id=974133734]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 78)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.45, 0.3, 0.02, 1)
-theme_override_constants/outline_size = 10
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 32
-theme_override_styles/normal = SubResource("StyleBoxFlat_medium")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_medium_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_medium_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_medium")
-text = "HOME"
+layout_mode = 0
+offset_left = 189.564
+offset_top = 723.115
+offset_right = 439.564
+offset_bottom = 817.685
+texture_normal = ExtResource("25_home")
+ignore_texture_size = true
+stretch_mode = 0
 script = ExtResource("10_juicy")
+bob_enabled = false
 
-[node name="RestartButton" type="Button" parent="WinLayer/WinPopup/Center/Panel/Margin/VBox" unique_id=23959746]
+[node name="RestartButton" type="TextureButton" parent="WinLayer/WinPopup/Card" unique_id=23959746]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
-theme_override_colors/font_pressed_color = Color(0.3, 0.19, 0.09, 1)
-theme_override_colors/font_hover_color = Color(0.3, 0.19, 0.09, 1)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_replay")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_replay_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_replay_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_replay")
-text = "REPLAY"
+layout_mode = 0
+offset_left = 204.49997
+offset_top = 810.99994
+offset_right = 424.49997
+offset_bottom = 886.22095
+texture_normal = ExtResource("27_replay")
+ignore_texture_size = true
+stretch_mode = 0
 script = ExtResource("10_juicy")
+bob_enabled = false
 
 [node name="MenuLayer" type="CanvasLayer" parent="." unique_id=1027356560]
 layer = 4

@@ -8,18 +8,25 @@ const PRESS_TINT := 0.72
 const PRESS_TIME := 0.08
 const RELEASE_TIME := 0.35
 
+## When true, the parent's first child gently bobs up and down (the
+## home-screen logo bob). Off for buttons whose parent should stay put.
+@export var bob_enabled := true
+
 var _tween: Tween
 var time = 0.0
 var init_pos = Vector2.ZERO
 
 func _process(delta: float) -> void:
+	if not bob_enabled:
+		return
 	time += delta
 	self.get_parent().get_child(0).global_position.y = init_pos.y - sin (time*2) * 5
 	
 
 func _ready() -> void:
-	self.get_parent().get_child(0).global_position.y -= 5
-	init_pos = self.get_parent().get_child(0).global_position
+	if bob_enabled:
+		self.get_parent().get_child(0).global_position.y -= 5
+		init_pos = self.get_parent().get_child(0).global_position
 	pivot_offset = size * 0.5
 	resized.connect(_on_resized)
 	button_down.connect(_on_button_down)
