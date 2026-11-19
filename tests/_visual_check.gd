@@ -1,6 +1,10 @@
 extends SceneTree
 ## Temporary visual-integrity check (not part of the shipped test suite).
 
+## Isolated save file: the main scene now persists progression, so the
+## check must never read or write the real player save.
+const TEST_SAVE_PATH := "user://visual_check_save.json"
+
 var fails := 0
 
 
@@ -11,7 +15,9 @@ func _check(cond: bool, label: String) -> void:
 
 
 func _initialize() -> void:
+	SaveData.delete_file(TEST_SAVE_PATH)
 	var main: Node2D = load("res://scenes/main.tscn").instantiate()
+	main.save_path = TEST_SAVE_PATH
 	root.add_child(main)
 	await process_frame
 	await process_frame
@@ -36,5 +42,6 @@ func _initialize() -> void:
 	_check(img.get_pixel(1, 1).a < 0.05, "rounded outer corner is clear")
 	_check(square.shadow_sprite.texture != null, "shadow texture built")
 
+	SaveData.delete_file(TEST_SAVE_PATH)
 	print("== %d visual failure(s) ==" % fails)
 	quit(1 if fails > 0 else 0)

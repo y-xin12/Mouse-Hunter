@@ -18,6 +18,10 @@ extends SceneTree
 ## stretch settings from project.godot are applied to the root window
 ## manually before the main scene is measured.
 
+## Isolated save file: the main scene now persists progression, so tests
+## must never read or write the real player save.
+const TEST_SAVE_PATH := "user://resolution_check_save.json"
+
 const TOLERANCE := 0.6
 ## project.godot's display/window/stretch/scale (content_scale_factor). The
 ## stretch settings are mirrored onto the root window manually below.
@@ -49,10 +53,12 @@ func _check(condition: bool, label: String) -> void:
 
 func _run_tests() -> void:
 	print("== Mouse-Hunter resolution check ==")
+	SaveData.delete_file(TEST_SAVE_PATH)
 	await _prepare_window()
 	for res in RESOLUTIONS:
 		await _test_resolution(res)
 	await _test_live_resize()
+	SaveData.delete_file(TEST_SAVE_PATH)
 	print("== %d failure(s) ==" % failures)
 	quit(1 if failures > 0 else 0)
 
@@ -142,11 +148,12 @@ func _test_resolution(res: Vector2i) -> void:
 
 	# Fresh main scene so GameManager._layout() runs at this size.
 	var main: Node2D = load("res://scenes/main.tscn").instantiate()
+	main.save_path = TEST_SAVE_PATH
 	root.add_child(main)
 	await process_frame
 	await process_frame
 	gm = main
-	gm._on_difficulty_selected(0)
+	gm._on_play_pressed()
 	_layout_checks(canvas)
 	_input_checks()
 	main.queue_free()
@@ -276,11 +283,12 @@ func _test_live_resize() -> void:
 	print("-- live resize 1440x2960 -> 1000x2960 --")
 	await _set_window_size(Vector2i(1440, 2960))
 	var main: Node2D = load("res://scenes/main.tscn").instantiate()
+	main.save_path = TEST_SAVE_PATH
 	root.add_child(main)
 	await process_frame
 	await process_frame
 	gm = main
-	gm._on_difficulty_selected(0)
+	gm._on_play_pressed()
 	var small_cell: float = gm.board.cell_px
 
 	await _set_window_size(Vector2i(1000, 2960))

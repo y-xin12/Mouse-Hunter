@@ -1,0 +1,212 @@
+[gd_scene format=3 uid="uid://csoqvy6k83l8w"]
+
+[ext_resource type="Script" uid="uid://dhnfevc3qmawv" path="res://scripts/level_complete_popup.gd" id="1_rbu1u"]
+[ext_resource type="Texture2D" uid="uid://dlw8ubw7p76c1" path="res://assets/UI/background.png" id="2_t7qdt"]
+[ext_resource type="Texture2D" uid="uid://ctuqkoryopnnd" path="res://assets/UI/mouse_peek.png" id="3_qedjp"]
+[ext_resource type="Texture2D" uid="uid://du8tke7onjbeu" path="res://assets/UI/completion board.png" id="4_7obag"]
+[ext_resource type="Texture2D" uid="uid://7yvl35n4ynrx" path="res://assets/UI/level complete banner.png" id="5_jaeij"]
+[ext_resource type="Texture2D" uid="uid://uk6d7d83vrqq" path="res://assets/UI/3 Stars.png" id="6_cc384"]
+[ext_resource type="Texture2D" uid="uid://gc5bw84x24h5" path="res://assets/UI/moves and time.png" id="7_pgpxa"]
+[ext_resource type="FontFile" uid="uid://rllsutc2j31e" path="res://assets/Font/Fredoka-Bold.ttf" id="8_i00nb"]
+[ext_resource type="Texture2D" uid="uid://dm4q60ake0cgs" path="res://assets/UI/next level.png" id="9_o5k65"]
+[ext_resource type="Script" uid="uid://c183c60fvvqdp" path="res://scripts/juicy_button.gd" id="10_rpafu"]
+[ext_resource type="Texture2D" uid="uid://cnhs3dqmahqpv" path="res://assets/UI/home.png" id="11_i0bqo"]
+[ext_resource type="Texture2D" uid="uid://bi7g2ue8kwae" path="res://assets/UI/replay.png" id="12_1wskf"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_paw_l"]
+atlas = ExtResource("3_qedjp")
+region = Rect2(68, 282, 118, 73)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_paw_r"]
+atlas = ExtResource("3_qedjp")
+region = Rect2(306, 282, 124, 73)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_statsbar"]
+atlas = ExtResource("7_pgpxa")
+region = Rect2(7, 10, 450, 84)
+
+[node name="WinLayer" type="CanvasLayer" unique_id=2083760214]
+layer = 3
+
+[node name="WinPopup" type="Control" parent="." unique_id=1849192774]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_rbu1u")
+
+[node name="Background" type="TextureRect" parent="WinPopup" unique_id=501784558]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource("2_t7qdt")
+expand_mode = 5
+stretch_mode = 6
+
+[node name="Dimmer" type="ColorRect" parent="WinPopup" unique_id=590636057]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.16, 0.1, 0.05, 0.25)
+
+[node name="Card" type="Control" parent="WinPopup" unique_id=270477755]
+unique_name_in_owner = true
+anchors_preset = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -315.5
+offset_top = -481.0
+offset_right = 315.5
+offset_bottom = 481.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MousePeek" type="TextureRect" parent="WinPopup/Card" unique_id=544570513]
+layout_mode = 0
+offset_left = 102.259
+offset_top = 3.0
+offset_right = 532.259
+offset_bottom = 315.168
+mouse_filter = 2
+texture = ExtResource("3_qedjp")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Board" type="TextureRect" parent="WinPopup/Card" unique_id=337105098]
+layout_mode = 0
+offset_left = 41.346
+offset_top = 258.0
+offset_right = 586.206
+offset_bottom = 950.0
+mouse_filter = 2
+texture = ExtResource("4_7obag")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PawLeft" type="TextureRect" parent="WinPopup/Card" unique_id=2102260115]
+layout_mode = 0
+offset_left = 162.054
+offset_top = 250.975
+offset_right = 265.817
+offset_bottom = 315.168
+mouse_filter = 2
+texture = SubResource("AtlasTexture_paw_l")
+expand_mode = 1
+
+[node name="PawRight" type="TextureRect" parent="WinPopup/Card" unique_id=798475408]
+layout_mode = 0
+offset_left = 371.338
+offset_top = 250.975
+offset_right = 480.377
+offset_bottom = 315.168
+mouse_filter = 2
+texture = SubResource("AtlasTexture_paw_r")
+expand_mode = 1
+
+[node name="Banner" type="TextureRect" parent="WinPopup/Card" unique_id=1763102648]
+layout_mode = 0
+offset_left = 66.054
+offset_top = 363.0
+offset_right = 576.054
+offset_bottom = 535.087
+mouse_filter = 2
+texture = ExtResource("5_jaeij")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StarsImg" type="TextureRect" parent="WinPopup/Card" unique_id=828700914]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 155.5
+offset_top = 493.0
+offset_right = 475.5
+offset_bottom = 610.0
+mouse_filter = 2
+texture = ExtResource("6_cc384")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MovesTimeBar" type="TextureRect" parent="WinPopup/Card" unique_id=1320854453]
+layout_mode = 0
+offset_left = 110.5
+offset_top = 624.0
+offset_right = 520.5
+offset_bottom = 716.0
+mouse_filter = 2
+texture = SubResource("AtlasTexture_statsbar")
+expand_mode = 1
+
+[node name="MovesValue" type="Label" parent="WinPopup/Card" unique_id=71975861]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 167.1
+offset_top = 660.0
+offset_right = 267.1
+offset_bottom = 712.0
+theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
+theme_override_fonts/font = ExtResource("8_i00nb")
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimeValue" type="Label" parent="WinPopup/Card" unique_id=2063617705]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 384.5
+offset_top = 662.0
+offset_right = 483.5
+offset_bottom = 711.0
+theme_override_colors/font_color = Color(0.36, 0.23, 0.12, 1)
+theme_override_fonts/font = ExtResource("8_i00nb")
+theme_override_font_sizes/font_size = 30
+text = "00:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextButton" type="TextureButton" parent="WinPopup/Card" unique_id=1936349973]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 148.165
+offset_top = 735.0
+offset_right = 478.165
+offset_bottom = 805.8
+texture_normal = ExtResource("9_o5k65")
+ignore_texture_size = true
+stretch_mode = 0
+script = ExtResource("10_rpafu")
+bob_enabled = false
+
+[node name="HomeButton" type="TextureButton" parent="WinPopup/Card" unique_id=945861523]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 189.564
+offset_top = 723.115
+offset_right = 439.564
+offset_bottom = 817.685
+texture_normal = ExtResource("11_i0bqo")
+ignore_texture_size = true
+stretch_mode = 0
+script = ExtResource("10_rpafu")
+bob_enabled = false
+
+[node name="RestartButton" type="TextureButton" parent="WinPopup/Card" unique_id=1194478493]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 204.49997
+offset_top = 810.99994
+offset_right = 424.49997
+offset_bottom = 886.22095
+texture_normal = ExtResource("12_1wskf")
+ignore_texture_size = true
+stretch_mode = 0
+script = ExtResource("10_rpafu")
+bob_enabled = false

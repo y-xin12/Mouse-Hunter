@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ui2pw8c6p1pj"]
 
 [ext_resource type="Script" uid="uid://cc73vm3jm1mpv" path="res://scripts/game_manager.gd" id="1_gm"]
-[ext_resource type="PackedScene" path="res://scenes/puzzle_board.tscn" id="2_board"]
+[ext_resource type="PackedScene" uid="uid://cpk16va7v4wbo" path="res://scenes/puzzle_board.tscn" id="2_board"]
 [ext_resource type="Script" uid="uid://bggli2rnrqyar" path="res://scripts/tray_backdrop.gd" id="3_tray"]
 [ext_resource type="Texture2D" uid="uid://dlw8ubw7p76c1" path="res://assets/UI/background.png" id="4_bg"]
 [ext_resource type="Script" uid="uid://dhnfevc3qmawv" path="res://scripts/level_complete_popup.gd" id="6_popup"]
@@ -10,13 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://c1cfeh6mfef35" path="res://assets/UI/level_button/button_easy.png" id="9_muem4"]
 [ext_resource type="Texture2D" uid="uid://ctuqkoryopnnd" path="res://assets/UI/mouse_peek.png" id="9_peek"]
 [ext_resource type="Script" uid="uid://c183c60fvvqdp" path="res://scripts/juicy_button.gd" id="10_juicy"]
-[ext_resource type="Texture2D" uid="uid://bao1gk6fgf5l1" path="res://assets/UI/level_button/button_medium.png" id="11_dp3eg"]
-[ext_resource type="Texture2D" uid="uid://bkpedaygdqwg3" path="res://assets/UI/level_button/button_hard.png" id="13_0ld40"]
-[ext_resource type="Texture2D" uid="uid://b52hicepjaidw" path="res://assets/UI/level_button/button_super_hard.png" id="15_gqmmt"]
 [ext_resource type="Texture2D" uid="uid://bneqdbcqpw4oj" path="res://assets/UI/level_pill/pill_easy.png" id="15_pe"]
-[ext_resource type="Texture2D" uid="uid://csd05vk5ce4ls" path="res://assets/UI/level_pill/pill_medium.png" id="16_pm"]
-[ext_resource type="Texture2D" uid="uid://chnshslt77qt2" path="res://assets/UI/level_pill/pill_hard.png" id="17_ph"]
-[ext_resource type="Texture2D" uid="uid://uqd2h50xg8th" path="res://assets/UI/level_pill/pill_super_hard.png" id="18_ps"]
 [ext_resource type="Texture2D" uid="uid://du8tke7onjbeu" path="res://assets/UI/completion board.png" id="19_board"]
 [ext_resource type="Texture2D" uid="uid://7yvl35n4ynrx" path="res://assets/UI/level complete banner.png" id="20_banner"]
 [ext_resource type="Texture2D" uid="uid://uk6d7d83vrqq" path="res://assets/UI/3 Stars.png" id="21_stars3"]
@@ -255,9 +249,9 @@ mouse_filter = 2
 
 [node name="MousePeek" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=1279207316]
 layout_mode = 0
-offset_left = 102.259
+offset_left = 97.259
 offset_top = 3.0
-offset_right = 532.259
+offset_right = 527.259
 offset_bottom = 315.168
 mouse_filter = 2
 texture = ExtResource("9_peek")
@@ -277,9 +271,9 @@ stretch_mode = 5
 
 [node name="PawLeft" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=521433890]
 layout_mode = 0
-offset_left = 162.054
+offset_left = 157.05399
 offset_top = 250.975
-offset_right = 265.817
+offset_right = 260.81696
 offset_bottom = 315.168
 mouse_filter = 2
 texture = SubResource("AtlasTexture_paw_l")
@@ -287,9 +281,9 @@ expand_mode = 1
 
 [node name="PawRight" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=381745092]
 layout_mode = 0
-offset_left = 371.338
+offset_left = 366.338
 offset_top = 250.975
-offset_right = 480.377
+offset_right = 475.377
 offset_bottom = 315.168
 mouse_filter = 2
 texture = SubResource("AtlasTexture_paw_r")
@@ -320,9 +314,9 @@ stretch_mode = 5
 
 [node name="MovesTimeBar" type="TextureRect" parent="WinLayer/WinPopup/Card" unique_id=614208773]
 layout_mode = 0
-offset_left = 110.5
+offset_left = 111.5
 offset_top = 624.0
-offset_right = 520.5
+offset_right = 521.5
 offset_bottom = 716.0
 mouse_filter = 2
 texture = SubResource("AtlasTexture_statsbar")
@@ -359,10 +353,10 @@ vertical_alignment = 1
 [node name="NextButton" type="TextureButton" parent="WinLayer/WinPopup/Card" unique_id=962299204]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 148.165
-offset_top = 735.0
-offset_right = 478.165
-offset_bottom = 805.8
+offset_left = 150.5
+offset_top = 734.0
+offset_right = 480.5
+offset_bottom = 804.8
 texture_normal = ExtResource("24_next")
 ignore_texture_size = true
 stretch_mode = 0
@@ -386,10 +380,10 @@ bob_enabled = false
 [node name="RestartButton" type="TextureButton" parent="WinLayer/WinPopup/Card" unique_id=23959746]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 204.49997
-offset_top = 810.99994
-offset_right = 424.49997
-offset_bottom = 886.22095
+offset_left = 206.83499
+offset_top = 810.0
+offset_right = 426.83502
+offset_bottom = 885.221
 texture_normal = ExtResource("27_replay")
 ignore_texture_size = true
 stretch_mode = 0
@@ -432,23 +426,23 @@ texture = ExtResource("8_logo")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="EasyButton" type="TextureButton" parent="MenuLayer/HomePanel" unique_id=843423564]
+[node name="PlayButton" type="TextureButton" parent="MenuLayer/HomePanel" unique_id=843423564]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -250.0
-offset_top = 574.0
+offset_top = 728.0
 offset_right = 250.0
-offset_bottom = 719.0
+offset_bottom = 873.0
 grow_horizontal = 2
 texture_normal = ExtResource("9_muem4")
 ignore_texture_size = true
 stretch_mode = 0
 script = ExtResource("10_juicy")
 
-[node name="NameLabel" type="Label" parent="MenuLayer/HomePanel/EasyButton" unique_id=770984333]
+[node name="NameLabel" type="Label" parent="MenuLayer/HomePanel/PlayButton" unique_id=770984333]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -460,11 +454,11 @@ theme_override_colors/font_outline_color = Color(0.15, 0.34, 0.03, 1)
 theme_override_constants/outline_size = 10
 theme_override_fonts/font = ExtResource("7_o6xl0")
 theme_override_font_sizes/font_size = 44
-text = "EASY"
+text = "PLAY"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="LevelRow" type="HBoxContainer" parent="MenuLayer/HomePanel/EasyButton" unique_id=33632122]
+[node name="LevelRow" type="HBoxContainer" parent="MenuLayer/HomePanel/PlayButton" unique_id=33632122]
 layout_mode = 0
 anchor_left = 0.5
 anchor_right = 0.5
@@ -476,7 +470,7 @@ mouse_filter = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="DashL" type="Label" parent="MenuLayer/HomePanel/EasyButton/LevelRow" unique_id=1666556488]
+[node name="DashL" type="Label" parent="MenuLayer/HomePanel/PlayButton/LevelRow" unique_id=1666556488]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.75)
 theme_override_fonts/font = ExtResource("7_o6xl0")
@@ -484,7 +478,7 @@ theme_override_font_sizes/font_size = 30
 text = "–"
 vertical_alignment = 1
 
-[node name="EasyBadge" type="TextureRect" parent="MenuLayer/HomePanel/EasyButton/LevelRow" unique_id=1296012380]
+[node name="PlayBadge" type="TextureRect" parent="MenuLayer/HomePanel/PlayButton/LevelRow" unique_id=1296012380]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(158, 48)
 layout_mode = 2
@@ -492,255 +486,18 @@ mouse_filter = 2
 texture = ExtResource("15_pe")
 expand_mode = 1
 
-[node name="Label" type="Label" parent="MenuLayer/HomePanel/EasyButton/LevelRow/EasyBadge" unique_id=1196962692]
+[node name="Label" type="Label" parent="MenuLayer/HomePanel/PlayButton/LevelRow/PlayBadge" unique_id=1196962692]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("7_o6xl0")
 theme_override_font_sizes/font_size = 22
-text = "LV 1"
+text = "Level 1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DashR" type="Label" parent="MenuLayer/HomePanel/EasyButton/LevelRow" unique_id=743005865]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.75)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 30
-text = "–"
-vertical_alignment = 1
-
-[node name="MediumButton" type="TextureButton" parent="MenuLayer/HomePanel" unique_id=44116296]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -250.0
-offset_top = 728.0
-offset_right = 250.0
-offset_bottom = 873.0
-grow_horizontal = 2
-texture_normal = ExtResource("11_dp3eg")
-ignore_texture_size = true
-stretch_mode = 0
-script = ExtResource("10_juicy")
-
-[node name="NameLabel" type="Label" parent="MenuLayer/HomePanel/MediumButton" unique_id=1942002753]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 19.0
-offset_bottom = 73.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.45, 0.28, 0.02, 1)
-theme_override_constants/outline_size = 10
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 44
-text = "MEDIUM"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="LevelRow" type="HBoxContainer" parent="MenuLayer/HomePanel/MediumButton" unique_id=357887639]
-layout_mode = 0
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -110.0
-offset_top = 72.0
-offset_right = 110.0
-offset_bottom = 120.0
-mouse_filter = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="DashL" type="Label" parent="MenuLayer/HomePanel/MediumButton/LevelRow" unique_id=68140151]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.75)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 30
-text = "–"
-vertical_alignment = 1
-
-[node name="MediumBadge" type="TextureRect" parent="MenuLayer/HomePanel/MediumButton/LevelRow" unique_id=525892768]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(158, 48)
-layout_mode = 2
-mouse_filter = 2
-texture = ExtResource("16_pm")
-expand_mode = 1
-
-[node name="Label" type="Label" parent="MenuLayer/HomePanel/MediumButton/LevelRow/MediumBadge" unique_id=1995239753]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 22
-text = "LV 2"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="DashR" type="Label" parent="MenuLayer/HomePanel/MediumButton/LevelRow" unique_id=1537859611]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.75)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 30
-text = "–"
-vertical_alignment = 1
-
-[node name="HardButton" type="TextureButton" parent="MenuLayer/HomePanel" unique_id=728504904]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -250.0
-offset_top = 882.0
-offset_right = 250.0
-offset_bottom = 1027.0
-grow_horizontal = 2
-texture_normal = ExtResource("13_0ld40")
-ignore_texture_size = true
-stretch_mode = 0
-script = ExtResource("10_juicy")
-
-[node name="NameLabel" type="Label" parent="MenuLayer/HomePanel/HardButton" unique_id=1676820030]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 20.0
-offset_bottom = 74.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.45, 0.2, 0.02, 1)
-theme_override_constants/outline_size = 10
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 44
-text = "HARD"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="LevelRow" type="HBoxContainer" parent="MenuLayer/HomePanel/HardButton" unique_id=1062617717]
-layout_mode = 0
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -110.0
-offset_top = 72.0
-offset_right = 110.0
-offset_bottom = 120.0
-mouse_filter = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="DashL" type="Label" parent="MenuLayer/HomePanel/HardButton/LevelRow" unique_id=486066060]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.75)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 30
-text = "–"
-vertical_alignment = 1
-
-[node name="HardBadge" type="TextureRect" parent="MenuLayer/HomePanel/HardButton/LevelRow" unique_id=344475920]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(158, 48)
-layout_mode = 2
-mouse_filter = 2
-texture = ExtResource("17_ph")
-expand_mode = 1
-
-[node name="Label" type="Label" parent="MenuLayer/HomePanel/HardButton/LevelRow/HardBadge" unique_id=1838795014]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 22
-text = "LV 3"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="DashR" type="Label" parent="MenuLayer/HomePanel/HardButton/LevelRow" unique_id=650039772]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.75)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 30
-text = "–"
-vertical_alignment = 1
-
-[node name="SuperHardButton" type="TextureButton" parent="MenuLayer/HomePanel" unique_id=585863863]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -250.0
-offset_top = 1036.0
-offset_right = 250.0
-offset_bottom = 1181.0
-grow_horizontal = 2
-texture_normal = ExtResource("15_gqmmt")
-ignore_texture_size = true
-stretch_mode = 0
-script = ExtResource("10_juicy")
-
-[node name="NameLabel" type="Label" parent="MenuLayer/HomePanel/SuperHardButton" unique_id=1538352186]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 19.0
-offset_bottom = 73.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.4, 0.1, 0.18, 1)
-theme_override_constants/outline_size = 10
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 44
-text = "SUPER HARD"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="LevelRow" type="HBoxContainer" parent="MenuLayer/HomePanel/SuperHardButton" unique_id=1653005307]
-layout_mode = 0
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -110.0
-offset_top = 72.0
-offset_right = 110.0
-offset_bottom = 120.0
-mouse_filter = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="DashL" type="Label" parent="MenuLayer/HomePanel/SuperHardButton/LevelRow" unique_id=364593666]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.75)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 30
-text = "–"
-vertical_alignment = 1
-
-[node name="SuperHardBadge" type="TextureRect" parent="MenuLayer/HomePanel/SuperHardButton/LevelRow" unique_id=1867982933]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(158, 48)
-layout_mode = 2
-mouse_filter = 2
-texture = ExtResource("18_ps")
-expand_mode = 1
-
-[node name="Label" type="Label" parent="MenuLayer/HomePanel/SuperHardButton/LevelRow/SuperHardBadge" unique_id=2075523695]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("7_o6xl0")
-theme_override_font_sizes/font_size = 22
-text = "LV 5"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="DashR" type="Label" parent="MenuLayer/HomePanel/SuperHardButton/LevelRow" unique_id=1082921192]
+[node name="DashR" type="Label" parent="MenuLayer/HomePanel/PlayButton/LevelRow" unique_id=743005865]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.75)
 theme_override_fonts/font = ExtResource("7_o6xl0")
@@ -754,9 +511,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -209.0
-offset_top = 280.0
+offset_top = 434.0
 offset_right = 131.0
-offset_bottom = 558.0
+offset_bottom = 712.0
 grow_horizontal = 2
 scale = Vector2(1.2, 1.2)
 mouse_filter = 2
